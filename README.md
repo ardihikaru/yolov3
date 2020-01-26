@@ -24,12 +24,26 @@ This directory contains PyTorch YOLOv3 software developed by Ultralytics LLC, an
 
 The https://github.com/ultralytics/yolov3 repo contains inference and training code for YOLOv3 in PyTorch. The code works on Linux, MacOS and Windows. Training is done on the COCO dataset by default: https://cocodataset.org/#home. **Credit to Joseph Redmon for YOLO:** https://pjreddie.com/darknet/yolo/.
 
-# Requirements
+# Table of Contents
+// TBD
 
-Python 3.7 or later with all of the `pip install -U -r requirements.txt` packages including:
-- `torch >= 1.3`
-- `opencv-python`
-- `Pillow`
+# 5g-dive implementation
+## Requirements
+1. Ubuntu 16.06
+2. Python Environment:
+    - Conda Environment: 
+    `conda create -n docker-yolov3 python=3.7 -c conda-forge`
+    - OR, Python 3.7 or later with all of the 
+        `pip install -U -r requirements.txt` packages including:
+        - `torch >= 1.3`
+        - `opencv-python`
+        - `Pillow`
+    - **WARNING**: If you get Module not found for `Cython`, please do:
+        `pip install Cython`
+## Clone and install requirements
+    $ git clone git@github.com:ardihikaru/yolov3.git
+    $ cd yolov3
+    $ pip install -r requirements.txt
 
 All dependencies are included in the associated docker images. Docker requirements are: 
 - `nvidia-docker`
