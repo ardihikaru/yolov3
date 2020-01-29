@@ -9,7 +9,8 @@ from libs.algorithms.yolo_v3 import YOLOv3
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cropp', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
+    # parser.add_argument('--crop_img', type=str, default=True, help='*.cfg path')
+    parser.add_argument('--crop_img', type=str, default=False, help='*.cfg path')
     # parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
     parser.add_argument('--cfg', type=str, default='yolo-obj-v5.cfg', help='*.cfg path')
     # parser.add_argument('--names', type=str, default='data/coco.names', help='*.names path')

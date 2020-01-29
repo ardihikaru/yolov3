@@ -208,12 +208,13 @@ class YOLOv3:
            pass
 
     def __save_cropped_img(self, xyxy, im0, idx):
-        # Try saving cropped image
-        original_img = im0.copy()
-        numpy_xyxy = torch2numpy(xyxy, int)
-        xywh = np_xyxy2xywh(numpy_xyxy)
-        crop_image(self.save_path, original_img, xywh, idx)
-        # crop_image(self.save_path, im0, xywh)
+        if self.opt.crop_img:
+            # Try saving cropped image
+            original_img = im0.copy()
+            numpy_xyxy = torch2numpy(xyxy, int)
+            xywh = np_xyxy2xywh(numpy_xyxy)
+            crop_image(self.save_path, original_img, xywh, idx)
+            # crop_image(self.save_path, im0, xywh)
 
     def __save_results(self, im0, vid_cap):
         # Save results (image with detections)
