@@ -4,7 +4,7 @@ from sys import platform
 from models import *  # set ONNX_EXPORT in models.py
 from utils.datasets import *
 from utils.utils import *
-from libs.algorithms.mbbox import Mbbox
+
 
 def detect(save_img=False):
     img_size = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352) for (height, width)
@@ -19,7 +19,6 @@ def detect(save_img=False):
 
     # Initialize model
     model = Darknet(opt.cfg, img_size)
-    mbbox = Mbbox()
 
     # Load weights
     attempt_download(weights)
@@ -93,20 +92,7 @@ def detect(save_img=False):
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
 
-        ####################################################################################
-        # Mb-box Code
-        ####################################################################################
-
-        ####################################################################################
-        # Default Code
-        ####################################################################################
-
         # Process detections
-        '''
-        p = path
-        s = string for printing
-        im0 = image (matrix)
-        '''
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
                 p, s, im0 = path[i], '%g: ' % i, im0s[i]
@@ -119,26 +105,16 @@ def detect(save_img=False):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                print("\n >> TOTAL DETECTED: ", len(det[:, -1]))
-                print("\n >> TOTAL DETECTED.unique(): ", len(det[:, -1].unique()))
-
                 # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
-                    # print(" \n INI ADALAH n=%g name=%ss, " % (n, names[int(c)]))
 
                 # Write results
                 for *xyxy, conf, cls in det:
-                    save_txt = True # Ardi: manually added
                     if save_txt:  # Write to file
                         with open(save_path + '.txt', 'a') as file:
                             file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
-
-                    numpy_int = torch2numpy(xyxy, float)
-                    print(" >>>>>> numpy_int = ", numpy_int)
-                    print(" >>>>>> TYPE numpy_int[0] = ", type(numpy_int[0]))
-                    print(" >>>>>> TYPE numpy_int = ", type(numpy_int))
 
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
@@ -188,8 +164,8 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/57-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-n-frames', help='source')  # input file/folder, 0 for webcam
-    # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder

@@ -12,6 +12,7 @@ class YOLOv3:
         self.opt = opt
         self.save_path = None
         self.t0 = None
+        self.str_output = ""
 
         # (320, 192) or (416, 256) or (608, 352) for (height, width)
         self.img_size = (320, 192) if ONNX_EXPORT else opt.img_size
@@ -45,7 +46,7 @@ class YOLOv3:
         self.__print_save_txt_img()
         self.__iterate_frames() # Perform detection in each frame here
 
-        print('Done. (%.3fs)' % (time.time() - self.t0))
+        print('Done. Total elapsed time: (%.3fs)' % (time.time() - self.t0))
 
     def __load_weight(self):
         # Load weights
@@ -70,6 +71,7 @@ class YOLOv3:
         # Eval mode
         self.model.to(self.device).eval()
 
+    # Optional
     def __export_mode(self):
         # Export mode
         if ONNX_EXPORT:
@@ -112,6 +114,32 @@ class YOLOv3:
             if platform == 'darwin':  # MacOS
                 os.system('open ' + self.out + ' ' + self.save_path)
 
+    def __save_cropped_img(self, xyxy, im0, idx):
+        if self.opt.crop_img:
+            # Try saving cropped image
+            original_img = im0.copy()
+            numpy_xyxy = torch2numpy(xyxy, int)
+            xywh = np_xyxy2xywh(numpy_xyxy)
+            crop_image(self.save_path, original_img, xywh, idx)
+
+    def __save_results(self, im0, vid_cap):
+        # Save results (image with detections)
+        if self.save_img:
+            if self.dataset.mode == 'images':
+                cv2.imwrite(self.save_path, im0)
+            else:
+                if self.vid_path != self.save_path:  # new video
+                    self.vid_path = self.save_path
+                    if isinstance(self.vid_writer, cv2.VideoWriter):
+                        self.vid_writer.release()  # release previous video writer
+
+                    fps = vid_cap.get(cv2.CAP_PROP_FPS)
+                    w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    self.vid_writer = cv2.VideoWriter(self.save_path,
+                                                      cv2.VideoWriter_fourcc(*self.opt.fourcc), fps, (w, h))
+                self.vid_writer.write(im0)
+
     def __iterate_frames(self):
         # Run inference
         self.t0 = time.time()
@@ -127,7 +155,8 @@ class YOLOv3:
             if self.opt.half:
                 pred = pred.float()
 
-            # Apply NMS
+            # Apply NMS: Non-Maximum Suppression
+            # to Removes detections with lower object confidence score than 'conf_thres'
             self.pred = non_max_suppression(pred, self.opt.conf_thres, self.opt.iou_thres, classes=self.opt.classes,
                                             agnostic=self.opt.agnostic_nms)
 
@@ -143,27 +172,27 @@ class YOLOv3:
             '''
             for i, det in enumerate(self.pred):  # detections per image
                 if self.webcam:  # batch_size >= 1
-                    p, s, im0 = path[i], '%g: ' % i, im0s[i]
+                    p, self.str_output, im0 = path[i], '%g: ' % i, im0s[i]
                 else:
-                    p, s, im0 = path, '', im0s
+                    p, self.str_output, im0 = path, '', im0s
 
                 self.save_path = str(Path(self.out) / Path(p).name)
-                s += '%gx%g ' % img.shape[2:]  # print string
+                self.str_output += '%gx%g ' % img.shape[2:]  # print string
                 if det is not None and len(det):
                     # Rescale boxes from img_size to im0 size
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                    print("\n >> TOTAL DETECTED: ", len(det[:, -1]))
-                    print("\n >> TOTAL DETECTED.unique(): ", len(det[:, -1].unique()))
+                    # print("\n >> TOTAL DETECTED: ", len(det[:, -1]))
+                    # print("\n >> TOTAL DETECTED.unique(): ", len(det[:, -1].unique()))
 
                     if self.default_algorithm:
-                        self.__default_detection(det, im0, s)
+                        self.__default_detection(det, im0)
 
                     if self.mbbox_algorithm:
                         self.__mbbox_detection() # modifying Mb-box
 
                     # Print time (inference + NMS)
-                    print('%sDone. (%.3fs)' % (s, time.time() - t))
+                    print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
 
                     # Stream results
                     if self.view_img:
@@ -173,15 +202,14 @@ class YOLOv3:
 
                     self.__save_results(im0, vid_cap)
 
-    def __default_detection(self, det, im0, s):
+    def __default_detection(self, det, im0):
         if self.default_algorithm:
             original_img = im0.copy()
 
             # Print results
             for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()  # detections per class
-                s += '%g %ss, ' % (n, self.names[int(c)])  # add to string
-                # print(" \n INI ADALAH n=%g name=%ss, " % (n, names[int(c)]))
+                self.str_output += '%g %ss, ' % (n, self.names[int(c)])  # add to string
 
             # Write results
             idx_detected = 0
@@ -206,31 +234,4 @@ class YOLOv3:
     def __mbbox_detection(self):
         if self.mbbox_algorithm:
            pass
-
-    def __save_cropped_img(self, xyxy, im0, idx):
-        if self.opt.crop_img:
-            # Try saving cropped image
-            original_img = im0.copy()
-            numpy_xyxy = torch2numpy(xyxy, int)
-            xywh = np_xyxy2xywh(numpy_xyxy)
-            crop_image(self.save_path, original_img, xywh, idx)
-            # crop_image(self.save_path, im0, xywh)
-
-    def __save_results(self, im0, vid_cap):
-        # Save results (image with detections)
-        if self.save_img:
-            if self.dataset.mode == 'images':
-                cv2.imwrite(self.save_path, im0)
-            else:
-                if self.vid_path != self.save_path:  # new video
-                    self.vid_path = self.save_path
-                    if isinstance(self.vid_writer, cv2.VideoWriter):
-                        self.vid_writer.release()  # release previous video writer
-
-                    fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                    w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                    h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                    self.vid_writer = cv2.VideoWriter(self.save_path,
-                                                      cv2.VideoWriter_fourcc(*self.opt.fourcc), fps, (w, h))
-                self.vid_writer.write(im0)
 
