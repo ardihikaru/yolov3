@@ -27,10 +27,10 @@ class IntersectionFinder:
         self.intersection_num = 0
         self.intersection_idx = []
 
-        self.centroids = {
-            "Person": np.zeros((len(self.class_det["Person"]),), dtype=int),
-            "Flag": np.zeros((len(self.class_det["Flag"]),), dtype=int)
-        }
+        # self.centroids = {
+        #     "Person": np.zeros((len(self.class_det["Person"]),), dtype=int),
+        #     "Flag": np.zeros((len(self.class_det["Flag"]),), dtype=int)
+        # }
 
         self.plot_test_bbox = False
         # self.plot_test_bbox = True

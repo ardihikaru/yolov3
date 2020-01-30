@@ -21,8 +21,12 @@ class Mbbox:
 
     def run(self):
         self.__extract()
-        self.intersection = IntersectionFinder(self.opt, self.names, self.save_path, self.img, self.det, self.class_det, self.width, self.height, self.w_ratio, self.h_ratio)
-        self.intersection.find()
+        # Bug fixing: When unable to find both Person and Flag object, ignore
+        if len(self.class_det) == 2:
+            self.intersection = IntersectionFinder(self.opt, self.names, self.save_path, self.img, self.det, self.class_det, self.width, self.height, self.w_ratio, self.h_ratio)
+            self.intersection.find()
+        else:
+            print("Unable to find BOTH Person and Flag object in this Frame.")
 
     '''
     FYI: Class label in this case (check in file `data/obj.names`):
