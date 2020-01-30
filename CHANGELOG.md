@@ -1,3 +1,14 @@
+## 0.3.0 (一月 30, 2020)
+  - fixed minor error
+  - added gpu analysis
+  - fixed plotting graph
+  - added latency analysis
+  - update printing information for detected objects
+  - changed printing information
+  - bug fixed: log latency details
+  - added latency information: Inference, NMS, and MB-Box
+  - Merge branch 'release-1.0' into develop
+
 ## 0.2.0 (一月 30, 2020)
   - disable save txt for default detection algorithms
   - finished and tested MB-Box algorithm
