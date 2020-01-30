@@ -2,7 +2,6 @@ import numpy as np
 from libs.algorithms.intersection_finder import IntersectionFinder
 from libs.commons.opencv_helpers import save_txt
 
-
 class Mbbox:
     def __init__(self, opt, save_path, det, img, names, w_ratio, h_ratio):
         self.opt = opt
@@ -29,7 +28,13 @@ class Mbbox:
         else:
             save_txt(self.save_path, self.opt.txt_format)
             # print("Person + Flag objects NOT Found.")
-            print("Person=%d; Flag=%d; Person-W-Flag=0;" % (len(self.class_det["Person"]), len(self.class_det["Flag"])))
+            total_person = 0
+            total_flag = 0
+            if "Person" in self.class_det:
+                total_person = len(self.class_det["Person"])
+            if "Flag" in self.class_det:
+                total_flag = len(self.class_det["Flag"])
+            print("Person=%d; Flag=%d; Person-W-Flag=0;" % (total_person, total_flag))
 
     '''
     FYI: Class label in this case (check in file `data/obj.names`):

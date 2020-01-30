@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torchvision
 from tqdm import tqdm
+import csv
 
 from . import torch_utils  # , google_utils
 
@@ -1046,3 +1047,19 @@ def plot_results(start=0, stop=0, bucket='', id=()):  # from utils.utils import 
     fig.tight_layout()
     ax[1].legend()
     fig.savefig('results.png', dpi=200)
+
+def save_to_csv(csv_path, fname, data):
+    np.savetxt(csv_path + "/" + fname, data, delimiter=',')  # X is an array
+
+def int_to_tuple(Ks):
+    lst = []
+    for i in range(Ks):
+        lst.append((i+1))
+    return tuple(lst)
+
+def read_data(csv_path, fname):
+    data_path = csv_path + "/"
+    fpath = data_path + fname
+    with open(fpath, 'r') as f:
+        reader = csv.reader(f)
+        return [float(line[0]) for line in list(reader)]
