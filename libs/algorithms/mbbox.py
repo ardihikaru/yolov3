@@ -25,7 +25,7 @@ class Mbbox:
             print("Person-W-Flag object: %d founds." % len(detected_mbbox))
         else:
             save_txt(self.save_path, self.opt.txt_format)
-            print("Unable to find BOTH Person and Flag object in this Frame.")
+            print("Person + Flag objects NOT Found.")
 
     '''
     FYI: Class label in this case (check in file `data/obj.names`):
