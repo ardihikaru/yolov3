@@ -57,3 +57,13 @@ def get_mbbox(obj_1, obj_2):
         max(box1_y2, box2_y2)
     ]
     return mbbox
+
+def np_xyxy2centroid(xyxy):
+    centroid_x = (xyxy[0] + xyxy[2]) / 2
+    centroid_y = (xyxy[1] + xyxy[3]) / 2
+    return np.asarray([centroid_x, centroid_y])
+
+def get_xyxy_distance(xyxy_1, xyxy_2):
+    o1cx_o2cx = pow((pc_x - fc_x), 2);
+    o1cy_o2cy = pow((pc_y - fc_y), 2);
+    distance = sqrt(o1cx_o2cx + o1cy_o2cy);

@@ -220,7 +220,14 @@ class YOLOv3:
                 self.save_txt = True  # Ardi: manually added
                 if self.save_txt:  # Write to file
                     with open(self.save_path + '.txt', 'a') as file:
-                        file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
+                        if self.opt.txt_format == "default":
+                            file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
+                        elif self.opt.txt_format == "cartucho":
+                            str = self.names[int(cls)] + " "
+                            str += ('%g ' * 5 + '\n') % (conf, *xyxy)
+                            file.write(str)
+                        else:
+                            pass
 
                 self.__save_cropped_img(xyxy, original_img, idx_detected)
 
@@ -239,7 +246,7 @@ class YOLOv3:
         if self.mbbox_algorithm:
             original_img = im0.copy()
 
-            self.mbbox = Mbbox(self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
+            self.mbbox = Mbbox(self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
             self.mbbox.run()
 
             # extract person and flag detected objects
