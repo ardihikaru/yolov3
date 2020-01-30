@@ -10,7 +10,7 @@ from libs.algorithms.yolo_v3 import YOLOv3
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
-    parser.add_argument('--latency_output', type=str, default="saved_latency", help='Output location for latency results')
+    parser.add_argument('--latency_output', type=str, default="saved_latency/tmp", help='Output location for latency results')
     parser.add_argument('--maximize_latency', type=bool, default=True, help='Enable max latency (disabling some features)')
     # parser.add_argument('--maximize_latency', type=bool, default=False, help='Enable max latency (disabling some features)')
     # parser.add_argument('--txt_format', type=str, default='default', help='Output Txt Format')
@@ -32,9 +32,9 @@ if __name__ == '__main__':
     parser.add_argument('--weights', type=str, default='weights/TM-04.weights', help='path to weights file')
     # parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/error', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='data/5g-dive/57-frames', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='data/5g-dive/57-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-n-frames', help='source')  # input file/folder, 0 for webcam
-    # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/false-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/customTest_MIRC-Roadside-5s-frame-rev-PersonFlag', help='source')  # input file/folder, 0 for webcam
