@@ -114,9 +114,12 @@ class IntersectionFinder:
                         str_output += str(int(mbbox_xyxy[0])) + " "
                         str_output += str(int(mbbox_xyxy[1])) + " "
                         str_output += str(int(mbbox_xyxy[2])) + " "
-                        str_output += str(int(mbbox_xyxy[3])) + " \n"
+                        # str_output += str(int(mbbox_xyxy[3])) + " \n"
                         # print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy))
-                        # print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[0]))
+                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[0]))
+                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[1]))
+                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[2]))
+                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[3]))
                         # str_output += str(int(mbbox_xyxy[0])) + " " + \
                         #               str(int(mbbox_xyxy[1])) + " " + \
                         #               str(int(mbbox_xyxy[2])) + " " + \
