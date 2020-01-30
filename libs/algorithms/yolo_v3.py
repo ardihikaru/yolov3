@@ -218,16 +218,18 @@ class YOLOv3:
             for *xyxy, conf, cls in det:
                 idx_detected += 1
                 self.save_txt = True  # Ardi: manually added
-                if self.save_txt:  # Write to file
-                    with open(self.save_path + '.txt', 'a') as file:
-                        if self.opt.txt_format == "default":
-                            file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
-                        elif self.opt.txt_format == "cartucho":
-                            str = self.names[int(cls)] + " "
-                            str += ('%g ' * 5 + '\n') % (conf, *xyxy)
-                            file.write(str)
-                        else:
-                            pass
+
+                # # Un-comment this to enable this feature
+                # if self.save_txt:  # Write to file
+                #     with open(self.save_path.replace(".png", "") + '.txt', 'a') as file:
+                #         if self.opt.txt_format == "default":
+                #             file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
+                #         elif self.opt.txt_format == "cartucho":
+                #             str = self.names[int(cls)] + " "
+                #             str += ('%g ' * 5 + '\n') % (conf, *xyxy)
+                #             file.write(str)
+                #         else:
+                #             pass
 
                 self.__save_cropped_img(xyxy, original_img, idx_detected)
 
