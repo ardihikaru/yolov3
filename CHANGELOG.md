@@ -1,3 +1,22 @@
+## 0.2.0 (一月 30, 2020)
+  - disable save txt for default detection algorithms
+  - finished and tested MB-Box algorithm
+  - bug fixed: ignore MB-Box Algorithm when in a specific frame unable to find BOTH Person and Flag object
+  - bug fixed: torch to numpy with GPU Mode
+  - testing
+  - testing
+  - testing
+  - testing
+  - testing
+  - testing to fix error: TypeError: can't convert CUDA tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.
+  - added txt output for MB-Box
+  - enable MB-Box with single intersection (Scenario 1)
+  - ready testing default code
+  - added extra information for NMS
+  - added new argument: crop_img; default FALSE
+  - created custom object detection
+  - re-arrange files
+
 ## 0.1.0 (一月 26, 2020)
   - initial development
   - updates

@@ -25,6 +25,15 @@ np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format}) 
 # Prevent OpenCV from multithreading (to use PyTorch DataLoader)
 cv2.setNumThreads(0)
 
+# Ardi: torch to numpy
+'''
+input: 
+- torch_data: list of torch variables
+- data_type: desired of data type of Numpy; e.g. int, double, float 
+return numpy array
+'''
+def torch2numpy(torch_data, data_type):
+    return np.asarray([data_type(data) for data in torch_data])
 
 def floatn(x, n=3):  # format floats to n decimals
     return float(format(x, '.%gf' % n))
