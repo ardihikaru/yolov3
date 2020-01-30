@@ -111,9 +111,12 @@ class IntersectionFinder:
                     elif self.opt.txt_format == "cartucho":
                         str_output = cls + " "
                         str_output += str(conf) + " "
-                        str_output += str(int(mbbox_xyxy[0])) + " \n"
-                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy))
-                        print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[0]))
+                        str_output += str(int(mbbox_xyxy[0])) + " "
+                        str_output += str(int(mbbox_xyxy[1])) + " "
+                        str_output += str(int(mbbox_xyxy[2])) + " "
+                        str_output += str(int(mbbox_xyxy[3])) + " \n"
+                        # print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy))
+                        # print("\n#### TYPE mbbox_xyxy = ", type(mbbox_xyxy[0]))
                         # str_output += str(int(mbbox_xyxy[0])) + " " + \
                         #               str(int(mbbox_xyxy[1])) + " " + \
                         #               str(int(mbbox_xyxy[2])) + " " + \

@@ -26,17 +26,11 @@ def np_xyxy2xywh(xyxy, data_type=int):
 
 def torch2np_xyxy(xyxy, data_type=int):
     # Convert bounding box format from [x1, y1, x2, y2] to [x, y, w, h]
-    # np_xyxy = np.zeros_like(xyxy)
-    try:
-        np_xyxy = np.zeros_like(xyxy)
-        np_xyxy[0] = data_type(xyxy[0])
-        np_xyxy[1] = data_type(xyxy[1])
-        np_xyxy[2] = data_type(xyxy[2])
-        np_xyxy[3] = data_type(xyxy[3])
-    except:
-        print("\n ######## MASUK EXCEPTION !!")
-        np_xyxy = xyxy.cpu().clone().numpy()
-        print("\n >>>> np_xyxy = ", np_xyxy)
+    np_xyxy = np.zeros_like(xyxy)
+    np_xyxy[0] = data_type(xyxy[0])
+    np_xyxy[1] = data_type(xyxy[1])
+    np_xyxy[2] = data_type(xyxy[2])
+    np_xyxy[3] = data_type(xyxy[3])
 
     return np_xyxy
 
