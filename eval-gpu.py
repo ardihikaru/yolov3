@@ -15,7 +15,7 @@ class Plot:
 
     def run(self):
         self.__overall_graph()
-        self.__bbox_mbbox_graph()
+        self.__mbbox_graph()
         self.__comparison_graph()
 
     def __overall_graph(self):
@@ -40,7 +40,7 @@ class Plot:
         plt.show()
         fig.savefig(self.latency_output + '/latency_overall.png', dpi=fig.dpi)
 
-    def __bbox_mbbox_graph(self):
+    def __mbbox_graph(self):
         comp_path = self.latency_output + "/comparison-gpu/"
         # time_bbox_latency = read_data(comp_path+"default", self.csv_default)
         time_mbbox_latency = read_data(comp_path+"custom", self.csv_mbbox)
@@ -51,9 +51,7 @@ class Plot:
         del time_mbbox_latency[0]
         del time_mbbox_latency[1]
 
-        print(" >>> time_mbbox_latency = ", time_mbbox_latency)
         mean_mbbox = round(np.mean(np.array(time_mbbox_latency)) * 1000, 2)
-        print(" >>> mean_mbbox = ", mean_mbbox)
 
         for i in range(len(time_mbbox_latency)):
             # time_bbox_latency[i] = time_bbox_latency[i] * 1000
@@ -63,11 +61,11 @@ class Plot:
         K = len(time_mbbox_latency)
         ks = int_to_tuple(K)  # used to plot the results
 
-        red_patch = mpatches.Patch(color='red', label='The red data')
-        blue_patch = mpatches.Patch(color='blue', label='The blue data')
+        # red_patch = mpatches.Patch(color='red', label='The red data')
+        # blue_patch = mpatches.Patch(color='blue', label='The blue data')
 
         fig = plt.figure()
-        title = "Processing Latency of MOD Algorithm"
+        title = "Processing Latency of MOD Algorithm (GPU)"
         plt.title(title)
         plt.plot(ks, time_mbbox_latency, label='MB-Box Latency')
         # plt.plot(ks, time_bbox_latency, label='Default B-Box Latency')
