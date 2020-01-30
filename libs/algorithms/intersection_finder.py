@@ -1,7 +1,6 @@
 from libs.commons.opencv_helpers import get_det_xyxy, np_xyxy2xywh, get_mbbox, np_xyxy2centroid, get_xyxy_distance, save_txt
 from utils.utils import plot_one_box
 import cv2
-import numpy as np
 
 class IntersectionFinder:
     def __init__(self, opt, names, save_path, img, det, class_det, ori_width, ori_height, w_ratio, h_ratio, version=1):
@@ -25,16 +24,6 @@ class IntersectionFinder:
         }
         self.save_path = save_path
         self.mbbox_imgs = []
-        self.intersection_num = 0
-        self.intersection_idx = []
-
-        # self.centroids = {
-        #     "Person": np.zeros((len(self.class_det["Person"]),), dtype=int),
-        #     "Flag": np.zeros((len(self.class_det["Flag"]),), dtype=int)
-        # }
-
-        # self.plot_test_bbox = False
-        # self.plot_test_bbox = True
 
         self.plot_mbbbox = True
         # self.plot_mbbbox = False
@@ -116,8 +105,9 @@ class IntersectionFinder:
             del self.class_det["Person"][this_person_idx]
             # 2.1.3 plot MB-Box
             if self.plot_mbbbox:
-                plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                if not self.opt.maximize_latency:
+                    plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
+                    save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
 
         # 2.2 Found multi-intersection: perform kNN to get the the nearest Person object
         elif len(detected_intersection) > 1:
@@ -153,8 +143,13 @@ class IntersectionFinder:
             # 2.1.3 plot MB-Box
             self.mbbox_imgs.append(mbbox_xyxy)
             if self.plot_mbbbox:
-                plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                if not self.opt.maximize_latency:
+                    plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
+                    save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+
+        else:
+            if not self.opt.maximize_latency:
+                save_txt(self.save_path, self.opt.txt_format)
 
     '''
     1. Each PERSON: W and H enlarged based on `w_ratio` and `h_ratio`
@@ -168,9 +163,9 @@ class IntersectionFinder:
             for person_idx in self.class_det["Person"]:
                 flag_xyxy = get_det_xyxy(self.det[flag_idx])
                 person_xyxy = get_det_xyxy(self.det[person_idx])
-                # if self.plot_test_bbox:
-                if self.plot_old_person_bbox: # Plot in bbox
-                    plot_one_box(person_xyxy, self.img_mbbox, label="Person-%s" % str(person_idx), color=self.rgb["MMBox"])
+                if not self.opt.maximize_latency:
+                    if self.plot_old_person_bbox: # Plot in bbox
+                        plot_one_box(person_xyxy, self.img_mbbox, label="Person-%s" % str(person_idx), color=self.rgb["MMBox"])
 
                 person_xyxy = self.__enlarge_bbox(person_xyxy) # enlarge bbox size
 
@@ -179,11 +174,9 @@ class IntersectionFinder:
                     detected_intersection.append(person_idx)
 
                 # Testing only: Try plotting bounding boxes
-                # if self.plot_test_bbox:
-                plot_one_box(person_xyxy, self.img_enlarge, label="EnPer-%s" % str(person_idx), color=self.rgb["EnlargedPerson"])
-                # plot_one_box(person_xyxy, self.img_mbbox, label="EnPer-%s" % str(person_idx), color=self.rgb["EnlargedPerson"])
-                plot_one_box(flag_xyxy, self.img_enlarge, label="Flag-%s" % str(flag_idx), color=self.rgb["Person"])
-                # plot_one_box(flag_xyxy, self.img_mbbox, label="Flag-%s" % str(flag_idx), color=self.rgb["Person"])
+                if not self.opt.maximize_latency:
+                    plot_one_box(person_xyxy, self.img_enlarge, label="EnPer-%s" % str(person_idx), color=self.rgb["EnlargedPerson"])
+                    plot_one_box(flag_xyxy, self.img_enlarge, label="Flag-%s" % str(flag_idx), color=self.rgb["Person"])
 
             self.__verify_intersection(flag_idx, detected_intersection)
 

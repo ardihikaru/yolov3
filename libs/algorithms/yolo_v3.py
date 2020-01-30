@@ -39,6 +39,20 @@ class YOLOv3:
         self.w_ratio = opt.w_ratio
         self.h_ratio = opt.h_ratio
 
+        self.time_inference = 0.0
+        self.time_nms = 0.0
+        self.time_mbbox = 0.0
+        self.time_default = 0.0
+        self.time_inference_list = []
+        self.time_nms_list = []
+        self.time_mbbox_list = []
+        self.time_default_list = []
+
+        self.csv_inference = "time_inference_latency.csv"
+        self.csv_nms = "time_nms_latency.csv"
+        self.csv_mbbox = "time_mbbox_latency.csv"
+        self.csv_default = "time_bbox_latency.csv"
+
     def run(self):
         print("Starting YOLO-v3 Detection Network")
         self.__load_weight()
@@ -50,8 +64,17 @@ class YOLOv3:
         self.__get_names_colors()
         self.__print_save_txt_img()
         self.__iterate_frames() # Perform detection in each frame here
+        self.__save_latency_to_csv()
 
-        print('Done. Total elapsed time: (%.3fs)' % (time.time() - self.t0))
+        print('\nFinished. Total elapsed time: (%.3fs) --> '
+              'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
+              ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
+
+    def __save_latency_to_csv(self):
+        save_to_csv(self.opt.latency_output, self.csv_inference, self.time_inference_list)
+        save_to_csv(self.opt.latency_output, self.csv_nms, self.time_nms_list)
+        save_to_csv(self.opt.latency_output, self.csv_mbbox, self.time_mbbox_list)
+        save_to_csv(self.opt.latency_output, self.csv_default, self.time_default_list)
 
     def __load_weight(self):
         # Load weights
@@ -152,22 +175,34 @@ class YOLOv3:
             t = time.time()
 
             # Get detections
+            ts_det = time.time()
             img = torch.from_numpy(img).to(self.device)
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
-            pred = self.model(img)[0]
+            self.pred = self.model(img)[0]
+            # print('\n # Total Inference time: (%.3fs)' % (time.time() - ts_det))
+            t_inference = time.time() - ts_det
+            self.time_inference += t_inference
+            self.time_inference_list.append(t_inference)
 
+            # Default: Disabled
             if self.opt.half:
-                pred = pred.float()
+                self.pred = self.pred.float()
 
             # Apply NMS: Non-Maximum Suppression
+            ts_nms = time.time()
             # to Removes detections with lower object confidence score than 'conf_thres'
-            self.pred = non_max_suppression(pred, self.opt.conf_thres, self.opt.iou_thres, classes=self.opt.classes,
+            self.pred = non_max_suppression(self.pred, self.opt.conf_thres, self.opt.iou_thres,
+                                            classes=self.opt.classes,
                                             agnostic=self.opt.agnostic_nms)
+            # print('\n # Total Non-Maximum Suppression (NMS) time: (%.3fs)' % (time.time() - ts_nms))
+            t_nms = time.time() - ts_nms
+            self.time_nms += t_nms
+            self.time_nms_list.append(t_nms)
 
-            # Apply Classifier
+            # Apply Classifier: Default DISABLED
             if self.classify:
-                self.pred = apply_classifier(pred, self.modelc, img, im0s)
+                self.pred = apply_classifier(self.pred, self.modelc, img, im0s)
 
             # Process detections
             '''
@@ -175,6 +210,7 @@ class YOLOv3:
             s = string for printing
             im0 = image (matrix)
             '''
+
             for i, det in enumerate(self.pred):  # detections per image
                 if self.webcam:  # batch_size >= 1
                     p, self.str_output, im0 = path[i], '%g: ' % i, im0s[i]
@@ -187,14 +223,28 @@ class YOLOv3:
                     # Rescale boxes from img_size to im0 size
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
+                    ts_mbbox = time.time()
                     if self.mbbox_algorithm:
                         self.__mbbox_detection(det, im0) # modifying Mb-box
+                    t_mbbox = time.time() - ts_mbbox
+                    self.time_mbbox += t_mbbox
+                    self.time_mbbox_list.append(t_mbbox)
 
-                    if self.default_algorithm:
-                        self.__default_detection(det, im0)
+                    ts_default = time.time()
+                    if not self.opt.maximize_latency:
+                        if self.default_algorithm:
+                            self.__default_detection(det, im0)
+                    t_default = time.time() - ts_default
+                    self.time_default += t_default
+                    self.time_default_list.append(t_default)
 
                     # Print time (inference + NMS)
-                    print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
+                    # print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
+
+                    print('Done. (%.3fs) --> '
+                          'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs); Default-Bbox(%.3fs)' %
+                          ((time.time() - t),
+                           t_inference, t_nms, t_mbbox, t_default))
 
                     # Stream results
                     if self.view_img:
@@ -203,6 +253,8 @@ class YOLOv3:
                             raise StopIteration
 
                     self.__save_results(im0, vid_cap)
+            # print('\n # Total MB-Box time: (%.3fs)' % (time.time() - ts_mbbox))
+
 
     def __default_detection(self, det, im0):
         if self.default_algorithm:
