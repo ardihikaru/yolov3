@@ -51,7 +51,9 @@ class YOLOv3:
         self.__print_save_txt_img()
         self.__iterate_frames() # Perform detection in each frame here
 
-        print('Done. Total elapsed time: (%.3fs)' % (time.time() - self.t0))
+        print('Done. Total elapsed time: (%.3fs) --> '
+              'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
+              ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
 
     def __load_weight(self):
         # Load weights
@@ -148,26 +150,37 @@ class YOLOv3:
     def __iterate_frames(self):
         # Run inference
         self.t0 = time.time()
+        # time_detection = 0.0
+        # time_nms = 0.0
+        # time_mbbox = 0.0
         for path, img, im0s, vid_cap in self.dataset:
             t = time.time()
 
             # Get detections
+            ts_det = time.time()
             img = torch.from_numpy(img).to(self.device)
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
-            pred = self.model(img)[0]
+            self.pred = self.model(img)[0]
+            # print('\n # Total Inference time: (%.3fs)' % (time.time() - ts_det))
+            self.time_inference = time.time() - ts_det
 
+            # Default: Disabled
             if self.opt.half:
-                pred = pred.float()
+                self.pred = self.pred.float()
 
             # Apply NMS: Non-Maximum Suppression
+            ts_nms = time.time()
             # to Removes detections with lower object confidence score than 'conf_thres'
-            self.pred = non_max_suppression(pred, self.opt.conf_thres, self.opt.iou_thres, classes=self.opt.classes,
+            self.pred = non_max_suppression(self.pred, self.opt.conf_thres, self.opt.iou_thres,
+                                            classes=self.opt.classes,
                                             agnostic=self.opt.agnostic_nms)
+            # print('\n # Total Non-Maximum Suppression (NMS) time: (%.3fs)' % (time.time() - ts_nms))
+            self.time_nms = time.time() - ts_nms
 
-            # Apply Classifier
+            # Apply Classifier: Default DISABLED
             if self.classify:
-                self.pred = apply_classifier(pred, self.modelc, img, im0s)
+                self.pred = apply_classifier(self.pred, self.modelc, img, im0s)
 
             # Process detections
             '''
@@ -175,6 +188,7 @@ class YOLOv3:
             s = string for printing
             im0 = image (matrix)
             '''
+            ts_mbbox = time.time()
             for i, det in enumerate(self.pred):  # detections per image
                 if self.webcam:  # batch_size >= 1
                     p, self.str_output, im0 = path[i], '%g: ' % i, im0s[i]
@@ -190,8 +204,9 @@ class YOLOv3:
                     if self.mbbox_algorithm:
                         self.__mbbox_detection(det, im0) # modifying Mb-box
 
-                    if self.default_algorithm:
-                        self.__default_detection(det, im0)
+                    if not self.opt.maximize_latency:
+                        if self.default_algorithm:
+                            self.__default_detection(det, im0)
 
                     # Print time (inference + NMS)
                     print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
@@ -203,6 +218,8 @@ class YOLOv3:
                             raise StopIteration
 
                     self.__save_results(im0, vid_cap)
+            # print('\n # Total MB-Box time: (%.3fs)' % (time.time() - ts_mbbox))
+            self.time_mbbox = time.time() - ts_mbbox
 
     def __default_detection(self, det, im0):
         if self.default_algorithm:

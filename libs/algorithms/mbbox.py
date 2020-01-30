@@ -9,12 +9,7 @@ class Mbbox:
         self.save_path = save_path
         self.height, self.width, self.channels = img.shape
         self.det = det # Original detected objects
-        # self.pid_det = {} # PID Object = Person in Distress = Person with flag
-        # self.pid_det = {}
         self.class_det = {}
-        # self.persons = []
-        # self.flags = []
-        # self.flags = np.empty(len(det))
         self.names = names
         self.w_ratio = w_ratio
         self.h_ratio = h_ratio
@@ -38,12 +33,8 @@ class Mbbox:
         - class `Flag` = 1; 
     '''
     def __extract(self):
-        # for d in self.det:
         for c in self.det[:, -1].unique():
-            # self.pid_det[self.names[int(c)]] = [d for d in self.det if d[-1] == c]
-            # self.pid_det[self.names[int(c)]] = [i for i in range (len(self.det)) if self.det[i][-1] == c]
             self.class_det[self.names[int(c)]] = [i for i in range (len(self.det)) if self.det[i][-1] == c]
-        # print("\n ## Class_Det = ", self.class_det)
 
 
 

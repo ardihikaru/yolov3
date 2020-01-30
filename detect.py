@@ -9,14 +9,16 @@ from libs.algorithms.yolo_v3 import YOLOv3
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--maximize_latency', type=bool, default=True, help='*.cfg path')
+    # parser.add_argument('--maximize_latency', type=bool, default=False, help='*.cfg path')
     # parser.add_argument('--txt_format', type=str, default='default', help='*.cfg path')
     parser.add_argument('--txt_format', type=str, default='cartucho', help='*.cfg path') # Source https://github.com/Cartucho/mAP#running-the-code
     parser.add_argument('--w_ratio', type=str, default=0.25, help='*.cfg path')
     # parser.add_argument('--w_ratio', type=float, default=1.95, help='*.cfg path')
     parser.add_argument('--h_ratio', type=float, default=0.1, help='*.cfg path')
     # parser.add_argument('--default_detection', type=str, default=False, help='*.cfg path')
-    parser.add_argument('--default_detection', type=str, default=True, help='*.cfg path')
-    parser.add_argument('--mbbox_detection', type=str, default=True, help='*.cfg path')
+    parser.add_argument('--default_detection', type=bool, default=True, help='*.cfg path')
+    parser.add_argument('--mbbox_detection', type=bool, default=True, help='*.cfg path')
     # parser.add_argument('--mbbox_detection', type=str, default=False, help='*.cfg path')
     parser.add_argument('--crop_img', type=str, default=True, help='*.cfg path')
     # parser.add_argument('--crop_img', type=str, default=False, help='*.cfg path')
@@ -27,11 +29,11 @@ if __name__ == '__main__':
     # parser.add_argument('--weights', type=str, default='weights/yolov3-spp.weights', help='path to weights file')
     parser.add_argument('--weights', type=str, default='weights/TM-04.weights', help='path to weights file')
     # parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='data/5g-dive/error', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='data/5g-dive/error', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/57-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-n-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
-    # parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/false-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/customTest_MIRC-Roadside-5s-frame-rev-PersonFlag', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4', help='source')  # input file/folder, 0 for webcam
