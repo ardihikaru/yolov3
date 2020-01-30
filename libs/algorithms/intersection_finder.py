@@ -102,22 +102,22 @@ class IntersectionFinder:
                 # plot_one_box(mbbox_xyxy, self.img_plot, label="MB-Box-F%s" % str(flag_idx), color=self.rgb["MMBox"])
                 plot_one_box(mbbox_xyxy, self.img_plot, label="Person-W-Flag", color=self.rgb["MMBox"])
 
-                # save into .txt file of MB-Box
-                cls = "Person-W-Flag"
-                conf = 1.0
-                with open(self.save_path + '.txt', 'a') as file:
-                    if self.opt.txt_format == "default":
-                        file.write(('%g ' * 6 + '\n') % (mbbox_xyxy, cls, conf))
-                    elif self.opt.txt_format == "cartucho":
-                        str_output = cls + " "
-                        str_output += str(conf) + " "
-                        str_output += str(int(mbbox_xyxy[0])) + " " + \
-                                      str(int(mbbox_xyxy[1])) + " " + \
-                                      str(int(mbbox_xyxy[2])) + " " + \
-                                      str(int(mbbox_xyxy[3])) + "\n"
-                        file.write(str_output)
-                    else:
-                        pass
+                # # save into .txt file of MB-Box
+                # cls = "Person-W-Flag"
+                # conf = 1.0
+                # with open(self.save_path + '.txt', 'a') as file:
+                #     if self.opt.txt_format == "default":
+                #         file.write(('%g ' * 6 + '\n') % (mbbox_xyxy, cls, conf))
+                #     elif self.opt.txt_format == "cartucho":
+                #         str_output = cls + " "
+                #         str_output += str(conf) + " "
+                #         str_output += str(int(mbbox_xyxy[0])) + " " + \
+                #                       str(int(mbbox_xyxy[1])) + " " + \
+                #                       str(int(mbbox_xyxy[2])) + " " + \
+                #                       str(int(mbbox_xyxy[3])) + "\n"
+                #         file.write(str_output)
+                #     else:
+                #         pass
 
         # 2.2 Found multi-intersection: perform kNN to get the the nearest Person object
         elif len(detected_intersection) > 1:

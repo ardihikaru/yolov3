@@ -35,7 +35,7 @@ def torch2np_xyxy(xyxy, data_type=int):
         np_xyxy[3] = data_type(xyxy[3])
     except:
         print("\n ######## MASUK EXCEPTION !!")
-        np_xyxy = xyxy.deatch().cpu().clone().numpy()
+        np_xyxy = xyxy.cpu().clone().numpy()
         print("\n >>>> np_xyxy = ", np_xyxy)
 
     return np_xyxy
