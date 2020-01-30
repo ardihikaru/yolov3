@@ -1,16 +1,16 @@
-from libs.commons.opencv_helpers import get_det_xyxy, np_xyxy2xywh
+from libs.commons.opencv_helpers import get_det_xyxy, np_xyxy2xywh, get_mbbox
 from utils.utils import plot_one_box
 import cv2
 
 class IntersectionFinder:
-    def __init__(self, save_path, img, det, class_det, ori_width, ori_height, version=1):
+    def __init__(self, save_path, img, det, class_det, ori_width, ori_height, w_ratio, h_ratio, version=1):
         self.img = img
         self.img_plot = img.copy()
         self.det = det
         self.class_det = class_det
         self.version = version
-        self.w_ratio = 0.25
-        self.h_ratio = 0.1
+        self.w_ratio = w_ratio
+        self.h_ratio = h_ratio
         self.ori_width = ori_width
         self.ori_height = ori_height
         self.rgb = {
@@ -70,15 +70,23 @@ class IntersectionFinder:
         else:
             return True
 
-    def __generate_mbbox(self, person_bbox, flag_bbox):
-        pass
-
-    def __verify_intersection(self, detected_intersection):
+    def __verify_intersection(self, flag_idx, detected_intersection):
         print("\n Number of intersection found = ", len(detected_intersection))
         # 2. Then, determine the action based on the collected intersection
         # 2.1 Found one: directly marked as MB-Box
         if len(detected_intersection) == 1:
-            pass
+            # 2.1.1 generate MB-Box
+            this_person_idx = detected_intersection[0]
+            flag_xyxy = get_det_xyxy(self.det[flag_idx])
+            person_xyxy = get_det_xyxy(self.det[this_person_idx])
+            mbbox_xyxy = get_mbbox(flag_xyxy, person_xyxy)
+
+            # 2.1.2 delete this person index
+            del self.class_det["Person"][this_person_idx]
+            # 2.1.3 plot MB-Box
+            # plot_one_box(mbbox_xyxy, self.img_plot, label="MB-Box-F%s" % str(flag_idx), color=self.rgb["MMBox"])
+            plot_one_box(mbbox_xyxy, self.img_plot, label="Person-W-Flag", color=self.rgb["MMBox"])
+
         # 2.2 Found multi-intersection: perform kNN to get the the nearest Person object
         elif len(detected_intersection) > 1:
             pass
@@ -94,7 +102,7 @@ class IntersectionFinder:
             for person_idx in self.class_det["Person"]:
                 flag_xyxy = get_det_xyxy(self.det[flag_idx])
                 person_xyxy = get_det_xyxy(self.det[person_idx])
-                plot_one_box(person_xyxy, self.img_plot, label="Person-%s" % str(person_idx), color=self.rgb["Person"])
+                # plot_one_box(person_xyxy, self.img_plot, label="Person-%s" % str(person_idx), color=self.rgb["MMBox"])
 
                 person_xyxy = self.__enlarge_bbox(person_xyxy) # enlarge bbox size
 
@@ -111,11 +119,12 @@ class IntersectionFinder:
                     # # self.intersection_num += 1
                 else:
                     print("\n #### NOPE.")
-                # Next: Benerin INTERSECTION SENG SALAH
-                plot_one_box(person_xyxy, self.img_plot, label="EnPer-%s" % str(person_idx), color=self.rgb["EnlargedPerson"])
-                plot_one_box(flag_xyxy, self.img_plot, label="Flag-%s" % str(flag_idx), color=self.rgb["Person"])
 
-            self.__verify_intersection(detected_intersection)
+                # Testing only: Try plotting bounding boxes
+                # plot_one_box(person_xyxy, self.img_plot, label="EnPer-%s" % str(person_idx), color=self.rgb["EnlargedPerson"])
+                # plot_one_box(flag_xyxy, self.img_plot, label="Flag-%s" % str(flag_idx), color=self.rgb["Person"])
+
+            self.__verify_intersection(flag_idx, detected_intersection)
 
         # save MB-Box illustration
         cv2.imwrite(self.save_path.replace('.png', '')+"-mbbox.png", self.img_plot)

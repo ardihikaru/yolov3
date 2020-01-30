@@ -37,3 +37,23 @@ def torch2np_xyxy(xyxy, data_type=int):
 def get_det_xyxy(det):
     numpy_xyxy = torch2np_xyxy(det[:4])
     return numpy_xyxy
+
+# Merged of 2 bounding boxes (xyxy and xyxy)
+def get_mbbox(obj_1, obj_2):
+    box1_x1 = obj_1[0]
+    box1_y1 = obj_1[1]
+    box1_x2 = obj_1[2]
+    box1_y2 = obj_1[3]
+
+    box2_x1 = obj_2[0]
+    box2_y1 = obj_2[1]
+    box2_x2 = obj_2[2]
+    box2_y2 = obj_2[3]
+
+    mbbox = [
+        min(box1_x1, box2_x1),
+        min(box1_y1, box2_y1),
+        max(box1_x2, box2_x2),
+        max(box1_y2, box2_y2)
+    ]
+    return mbbox

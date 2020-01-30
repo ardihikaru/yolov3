@@ -2,7 +2,7 @@ import numpy as np
 from libs.algorithms.intersection_finder import IntersectionFinder
 
 class Mbbox:
-    def __init__(self, save_path, det, img, names):
+    def __init__(self, save_path, det, img, names, w_ratio, h_ratio):
         self.img = img
         self.save_path = save_path
         self.height, self.width, self.channels = img.shape
@@ -14,11 +14,13 @@ class Mbbox:
         # self.flags = []
         # self.flags = np.empty(len(det))
         self.names = names
+        self.w_ratio = w_ratio
+        self.h_ratio = h_ratio
 
 
     def run(self):
         self.__extract()
-        self.intersection = IntersectionFinder(self.save_path, self.img, self.det, self.class_det, self.width, self.height)
+        self.intersection = IntersectionFinder(self.save_path, self.img, self.det, self.class_det, self.width, self.height, self.w_ratio, self.h_ratio)
         self.intersection.find()
 
     '''

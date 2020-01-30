@@ -35,6 +35,10 @@ class YOLOv3:
         self.default_algorithm = opt.default_detection
         self.mbbox_algorithm = opt.mbbox_detection
 
+        # Set W and H enlarging ratio
+        self.w_ratio = opt.w_ratio
+        self.h_ratio = opt.h_ratio
+
     def run(self):
         print("Starting YOLO-v3 Detection Network")
         self.__load_weight()
@@ -235,7 +239,7 @@ class YOLOv3:
         if self.mbbox_algorithm:
             original_img = im0.copy()
 
-            self.mbbox = Mbbox(self.save_path, det, original_img, self.names)
+            self.mbbox = Mbbox(self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
             self.mbbox.run()
 
             # extract person and flag detected objects
