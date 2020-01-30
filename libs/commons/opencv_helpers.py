@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from math import sqrt
 
 def crop_image(save_path, img, xywh, idx):
     x = xywh[0]
@@ -72,6 +73,32 @@ def np_xyxy2centroid(xyxy):
 
 def get_xyxy_distance(xyxy_1, xyxy_2):
     pass
-    # o1cx_o2cx = pow((pc_x - fc_x), 2)
-    # o1cy_o2cy = pow((pc_y - fc_y), 2)
-    # distance = sqrt(o1cx_o2cx + o1cy_o2cy)
+    o1cx_o2cx = pow((xyxy_1[0] - xyxy_2[0]), 2)
+    o1cy_o2cy = pow((xyxy_1[1] - xyxy_2[1]), 2)
+    distance = sqrt(o1cx_o2cx + o1cy_o2cy)
+    return distance
+
+
+def save_txt(save_path, txt_format, mbbox_xyxy=None):
+    # save into .txt file of MB-Box
+    txt_path = save_path.replace(".png", '')
+    with open(txt_path + '.txt', 'a') as file:
+        if mbbox_xyxy is None:
+            file.write("")
+        else:
+            cls = "Person-W-Flag"
+            conf = 1.0
+            if txt_format == "default":
+                file.write(('%g ' * 6 + '\n') % (mbbox_xyxy, cls, conf))
+            elif txt_format == "cartucho":
+                str_output = cls + " "
+                str_output += str(conf) + " "
+                str_output += str(int(mbbox_xyxy[0])) + " " + \
+                              str(int(mbbox_xyxy[1])) + " " + \
+                              str(int(mbbox_xyxy[2])) + " " + \
+                              str(int(mbbox_xyxy[3])) + "\n"
+                file.write(str_output)
+            else:
+                pass
+
+

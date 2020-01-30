@@ -187,11 +187,11 @@ class YOLOv3:
                     # Rescale boxes from img_size to im0 size
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                    if self.default_algorithm:
-                        self.__default_detection(det, im0)
-
                     if self.mbbox_algorithm:
                         self.__mbbox_detection(det, im0) # modifying Mb-box
+
+                    if self.default_algorithm:
+                        self.__default_detection(det, im0)
 
                     # Print time (inference + NMS)
                     print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
