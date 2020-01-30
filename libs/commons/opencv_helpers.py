@@ -7,7 +7,7 @@ def crop_image(save_path, img, xywh, idx):
     w = xywh[2]
     h = xywh[3]
     crop_img = img[y:y + h, x:x + w]
-    crop_save_path = save_path.replace('.jpg', '')+"-%s-crop.jpg" % str(idx)
+    crop_save_path = save_path.replace('.png', '')+"-%s-crop.png" % str(idx)
     cv2.imwrite(crop_save_path, crop_img)
 
 def np_xyxy2xywh(xyxy, data_type=int):
@@ -23,3 +23,17 @@ def np_xyxy2xywh(xyxy, data_type=int):
     xywh[2] = data_type(abs(x2 - x1))
     xywh[3] = data_type(abs(y1 - y2))
     return xywh
+
+def torch2np_xyxy(xyxy, data_type=int):
+    # Convert bounding box format from [x1, y1, x2, y2] to [x, y, w, h]
+    np_xyxy = np.zeros_like(xyxy)
+
+    np_xyxy[0] = data_type(xyxy[0])
+    np_xyxy[1] = data_type(xyxy[1])
+    np_xyxy[2] = data_type(xyxy[2])
+    np_xyxy[3] = data_type(xyxy[3])
+    return np_xyxy
+
+def get_det_xyxy(det):
+    numpy_xyxy = torch2np_xyxy(det[:4])
+    return numpy_xyxy

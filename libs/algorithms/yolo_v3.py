@@ -9,6 +9,7 @@ from libs.algorithms.mbbox import Mbbox
 
 class YOLOv3:
     def __init__(self, opt):
+        self.n_labels = 2 # This is fixed, since we desire 2 labels: Person and Flag
         self.opt = opt
         self.save_path = None
         self.t0 = None
@@ -28,11 +29,11 @@ class YOLOv3:
 
         # Initialize model
         self.model = Darknet(opt.cfg, self.img_size)
+        self.mbbox = None # Merge Bounding Box
 
         # Sef Default Detection Algorithms
-        self.default_algorithm = True
-        # self.default_algorithm = False
-        self.mbbox_algorithm = True
+        self.default_algorithm = opt.default_detection
+        self.mbbox_algorithm = opt.mbbox_detection
 
     def run(self):
         print("Starting YOLO-v3 Detection Network")
@@ -182,14 +183,11 @@ class YOLOv3:
                     # Rescale boxes from img_size to im0 size
                     det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                    # print("\n >> TOTAL DETECTED: ", len(det[:, -1]))
-                    # print("\n >> TOTAL DETECTED.unique(): ", len(det[:, -1].unique()))
-
                     if self.default_algorithm:
                         self.__default_detection(det, im0)
 
                     if self.mbbox_algorithm:
-                        self.__mbbox_detection() # modifying Mb-box
+                        self.__mbbox_detection(det, im0) # modifying Mb-box
 
                     # Print time (inference + NMS)
                     print('%sDone. (%.3fs)' % (self.str_output, time.time() - t))
@@ -220,18 +218,30 @@ class YOLOv3:
                     with open(self.save_path + '.txt', 'a') as file:
                         file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
 
-                # numpy_int = torch2numpy(xyxy, float)
-                # print(" >>>>>> numpy_int = ", numpy_int)
-                # print(" >>>>>> TYPE numpy_int[0] = ", type(numpy_int[0]))
-                # print(" >>>>>> TYPE numpy_int = ", type(numpy_int))
-
                 self.__save_cropped_img(xyxy, original_img, idx_detected)
 
                 if self.save_img or self.view_img:  # Add bbox to image
                     label = '%s %.2f' % (self.names[int(cls)], conf)
                     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
 
-    def __mbbox_detection(self):
+    '''
+    FYI:
+        Variable `det` consists of three parameters:
+        1. *xyxy : Coordinate of (x1, y1) and (x2, y2)
+        2. conf  : Confidence Score
+        3. cls   : Class (`Person` and `Flag`)
+    '''
+    def __mbbox_detection(self, det, im0):
         if self.mbbox_algorithm:
-           pass
+            original_img = im0.copy()
 
+            self.mbbox = Mbbox(self.save_path, det, original_img, self.names)
+            self.mbbox.run()
+
+            # extract person and flag detected objects
+            # for c in det[:, -1].unique():
+            #     pid_det[self.names[int(c)]] = [d for d in det if d[-1] == c]
+
+            # print("\n pid_det = ", len(pid_det), pid_det)
+            # print("\n pid_det = ", len(pid_det), pid_det)
+            # print(det)
