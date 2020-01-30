@@ -124,6 +124,7 @@ class YOLOv3:
         self.vid_path, self.vid_writer = None, None
         if self.webcam:
             self.view_img = True
+            self.save_img = False
             torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
             self.dataset = LoadStreams(self.source, img_size=self.img_size, half=self.half)
         else:
@@ -138,6 +139,7 @@ class YOLOv3:
     # Executed after detect()
     def __print_save_txt_img(self):
         if self.save_txt or self.save_img:
+        # if self.save_txt:
             print('Results saved to %s' % os.getcwd() + os.sep + self.out)
             if platform == 'darwin':  # MacOS
                 os.system('open ' + self.out + ' ' + self.save_path)
@@ -300,9 +302,25 @@ class YOLOv3:
         if self.mbbox_algorithm:
             original_img = im0.copy()
 
-            self.mbbox = Mbbox(self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
+            self.mbbox = Mbbox(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
             self.mbbox.run()
+            # im0 = self.mbbox.get_mbbox_img() # overriding img value here.
+            detected_mbbox = self.mbbox.get_detected_mbbox()
+            rgb_mbbox = self.mbbox.get_rgb_mbbox()
+            if len(detected_mbbox) > 0:
+                print("\n ############### DETECTED MB-Box = ", len(detected_mbbox))
+                print("\n ### TYPE detected_mbbox = ", type(detected_mbbox[0]))
 
+            print("\n ### TYPE det = ", type(det))
+
+            for xyxy in detected_mbbox:
+                plot_one_box(xyxy, im0, label="Person-W-Flag", color=rgb_mbbox)
+
+
+            # for *xyxy, conf, cls in det:
+            #     print("\n ### TYPE xyxy = ", type(xyxy))
+            #     label = '%s %.2f' % (self.names[int(cls)], conf)
+            #     plot_one_box(xyxy, im0, label="kucing", color=self.colors[int(cls)])
             # extract person and flag detected objects
             # for c in det[:, -1].unique():
             #     pid_det[self.names[int(c)]] = [d for d in det if d[-1] == c]

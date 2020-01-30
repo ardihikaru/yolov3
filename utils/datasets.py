@@ -192,6 +192,9 @@ class LoadStreams:  # multiple IP or RTSP cameras
         self.img_size = img_size
         self.half = half  # half precision fp16 images
 
+        self.w = 1366
+        self.h = 768
+
         if os.path.isfile(sources):
             with open(sources, 'r') as f:
                 sources = [x.strip() for x in f.read().splitlines() if len(x.strip())]
@@ -206,8 +209,17 @@ class LoadStreams:  # multiple IP or RTSP cameras
             print('%g/%g: %s... ' % (i + 1, n, s), end='')
             cap = cv2.VideoCapture(0 if s == '0' else s)
             assert cap.isOpened(), 'Failed to open %s' % s
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            # Default
+            # w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            # h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            # Modified
+            w = 1366
+            h = 768
+            # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+            # cv2.resizeWindow("Image", w, h)  # Enter your size
+
             fps = cap.get(cv2.CAP_PROP_FPS) % 100
             _, self.imgs[i] = cap.read()  # guarantee first frame
             thread = Thread(target=self.update, args=([i, cap]), daemon=True)
@@ -224,6 +236,11 @@ class LoadStreams:  # multiple IP or RTSP cameras
     def update(self, index, cap):
         # Read next stream frame in a daemon thread
         n = 0
+
+        # Fix Window
+        # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+        # cv2.resizeWindow("Image", self.w, self.h)  # Enter your size
+
         while cap.isOpened():
             n += 1
             # _, self.imgs[index] = cap.read()
@@ -239,6 +256,11 @@ class LoadStreams:  # multiple IP or RTSP cameras
 
     def __next__(self):
         self.count += 1
+
+        # Fix Window
+        # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+        # cv2.resizeWindow("Image", self.w, self.h)  # Enter your size
+
         img0 = self.imgs.copy()
         if cv2.waitKey(1) == ord('q'):  # q to quit
             cv2.destroyAllWindows()

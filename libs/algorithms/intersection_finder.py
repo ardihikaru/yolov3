@@ -43,6 +43,12 @@ class IntersectionFinder:
     def get_mbbox_imgs(self):
         return self.mbbox_imgs
 
+    def get_img_with_mbbox(self):
+        return self.img_mbbox
+
+    def get_rgb_mbbox(self):
+        return self.rgb["MMBox"]
+
     def __enlarge_bbox(self, bbox):
         xywh = np_xyxy2xywh(bbox)
 
@@ -181,6 +187,8 @@ class IntersectionFinder:
             self.__verify_intersection(flag_idx, detected_intersection)
 
         # save MB-Box illustration
+        # print(" >>>>> self.save_path = ", self.save_path)
+        # cv2.imwrite(self.save_path+, self.img_mbbox)
         cv2.imwrite(self.save_path.replace('.png', '')+"-mbbox.png", self.img_mbbox)
         cv2.imwrite(self.save_path.replace('.png', '')+"-enlarge.png", self.img_enlarge)
 
