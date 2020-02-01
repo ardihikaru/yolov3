@@ -49,11 +49,19 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
 ### Usage
 1. Activate environment (for Conda Env): `$ conda activate 5gdive-yolov3`
 2. Run YOLOv3 Workers, as the for example here, I setup **3 workers** by default (file `worker_yolov3.py`)
-- `$ python worker_yolov3.py --sub_channel 1`
-- `$ python worker_yolov3.py --sub_channel 2`
-- `$ python worker_yolov3.py --sub_channel 3`
+    - `$ python worker_yolov3.py --sub_channel 1`
+    - `$ python worker_yolov3.py --sub_channel 2`
+    - `$ python worker_yolov3.py --sub_channel 3`
 3. Run video streaming reader: `$ python reading_video.py`
-- By default, I set `3 number of workers`. Please modify them accordingly.
+    - By default, I set several important variables as follows (Please change them as per your requirements):
+        - **total_workers**: `3` number of workers.
+        - **enable_cv_out**: `False`. Please set `True` if you want to see streaming result (Raw Frames)
+        - **delay**: Send the captured frame image, every `7` frames. 
+        - **output_folder**: Default location where **Raw Image** will be stored. 
+            It will be used by each `worker` to run the YOLOv3 Object Detection
+        - **source**: Source video streaming (or video file). Currently tested with: 
+            - Video files: *.mp4
+            - Video Streaming: `RTSP` and `HTTP`   
 
 ##### All dependencies are included in the associated docker images. Docker requirements are: 
 - `nvidia-docker`
