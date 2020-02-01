@@ -55,7 +55,7 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
 3. Run video streaming reader: `$ python reading_video.py`
     - By default, I set several important variables as follows (Please change them as per your requirements):
         - **total_workers**: `3` number of workers.
-        - **enable_cv_out**: `False`. Please set `True` if you want to see streaming result (Raw Frames)
+        - **enable_cv_out**: `False`. Please set `True` if you want to see streaming result (**Raw Frames**) while it process the detection in the background process.
         - **delay**: Send the captured frame image, every `7` frames. 
         - **output_folder**: Default location where **Raw Image** will be stored. 
             It will be used by each `worker` to run the YOLOv3 Object Detection
