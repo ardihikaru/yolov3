@@ -6,9 +6,11 @@ from utils.utils import *
 from libs.commons.opencv_helpers import *
 
 from libs.algorithms.mbbox import Mbbox
+import json
 
 class YOLOv3:
-    def __init__(self, opt):
+    def __init__(self, opt, frame_id=0):
+        self.frame_id = frame_id
         self.n_labels = 2 # This is fixed, since we desire 2 labels: Person and Flag
         self.opt = opt
         self.save_path = None
@@ -54,6 +56,8 @@ class YOLOv3:
         self.csv_default = "time_bbox_latency.csv"
 
         self.mbbox_img = None
+        self.auto_restart = True
+        self.manual_stop = False
 
     def run(self):
         print("Starting YOLO-v3 Detection Network")
@@ -71,6 +75,24 @@ class YOLOv3:
         print('\nFinished. Total elapsed time: (%.3fs) --> '
               'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
               ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
+
+    def read_video_streaming(self):
+        print("Starting Video Streaming Reader")
+        self.__load_weight()
+        while self.auto_restart:
+            try:
+                if self.manual_stop:
+                    self.auto_restart = False
+                    break
+                self.__set_data_loader()
+                self.__feed_video_frames() # Perform detection in each frame here
+            except:
+                print("Got error while reading video streaming, restarting . . .")
+                time.sleep(2)
+
+        # print('\nFinished. Total elapsed time: (%.3fs) --> '
+        #       'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
+        #       ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
 
     def __save_latency_to_csv(self):
         save_to_csv(self.opt.latency_output, self.csv_inference, self.time_inference_list)
@@ -189,12 +211,52 @@ class YOLOv3:
                                                       cv2.VideoWriter_fourcc(*self.opt.fourcc), fps, (w, h))
                 self.vid_writer.write(im0)
 
+    def __feed_video_frames(self):
+        self.t0 = time.time()
+        # frame_id = 0
+        for path, img, im0s, vid_cap in self.dataset:
+            self.frame_id += 1
+            t = time.time()
+            # print("\n### >> path = ", path)
+            # print("\n### >> img = ", img)
+            # print("\n### >> TYPE img = ", type(img))
+            # print("\n### frame-%d >> LEN img = " % self.frame_id, len(img[0]))
+            # print("\n### frame-%d >> LEN img = " % self.frame_id, len(img[0][0]))
+            # print("\n### frame-%d >> LEN img = " % self.frame_id, len(img[0][1]))
+            # print("\n### frame-%d >> LEN img = " % self.frame_id, len(img[0][2]))
+            # print("\n### >> im0s = ", im0s)
+
+            # print("\n### frame-%d >> LEN im0s = " % self.frame_id, len(im0s))
+            # print("\n### frame-%d >> LEN im0s = " % self.frame_id, len(im0s[0]))
+
+            if self.webcam:
+                frame_save_path = self.opt.frames_dir + "/frame-%d.jpg" % self.frame_id
+                cv2.imwrite(frame_save_path, img)
+                # cv2.imwrite(frame_save_path, im0s)
+
+                # print("coba dumping JSON \n")
+                # Create dict
+                # dic = {}
+                # dic['data'] = img
+                # json_img = json.dumps(dic)
+                # print(" dumping json OK.")
+                # json_save_path = frame_save_path.replace(".jpg", ".json")
+                # print("\n>>> json_save_path = ", json_save_path)
+                # print("\n>>> TYPE json_img = ", type(json_img))
+                # with open(json_save_path, 'w') as file:
+                #     file.write(json_img)
+
+            if self.frame_id > 10:
+                self.manual_stop = True
+                print("\n\n #### FORCED TO BREAK HERE !!!")
+                break
+
     def __iterate_frames(self):
         # Run inference
         self.t0 = time.time()
-        frame_id = 0
+        # frame_id = 0
         for path, img, im0s, vid_cap in self.dataset:
-            frame_id += 1
+            self.frame_id += 1
             t = time.time()
 
             # Get detections
@@ -275,7 +337,7 @@ class YOLOv3:
                     #     if cv2.waitKey(1) == ord('q'):  # q to quit
                     #         raise StopIteration
 
-                    self.__save_results(im0, vid_cap, frame_id)
+                    self.__save_results(im0, vid_cap, self.frame_id)
             # print('\n # Total MB-Box time: (%.3fs)' % (time.time() - ts_mbbox))
 
 
