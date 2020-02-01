@@ -8,6 +8,8 @@ from libs.commons.opencv_helpers import *
 from libs.algorithms.mbbox import Mbbox
 from redis import StrictRedis
 import json
+from libs.settings import common_settings
+from libs.addons.redis.translator import redis_set, redis_get
 
 class YOLOv3:
     def __init__(self, opt, frame_id=0):
@@ -61,11 +63,22 @@ class YOLOv3:
         self.auto_restart = True
         self.manual_stop = False
 
+        self.__set_redis()
+
+    def __set_redis(self):
         self.rc = StrictRedis(
-            host="localhost",
-            port=6379,
-            password="bismillah",
-            db=0,
+            host=common_settings["redis_config"]["hostname"],
+            port=common_settings["redis_config"]["port"],
+            password=common_settings["redis_config"]["password"],
+            db=common_settings["redis_config"]["db"],
+            decode_responses=True
+        )
+
+        self.rc_data = StrictRedis(
+            host=common_settings["redis_config"]["hostname"],
+            port=common_settings["redis_config"]["port"],
+            password=common_settings["redis_config"]["password"],
+            db=common_settings["redis_config"]["db_data"],
             decode_responses=True
         )
 
@@ -86,24 +99,14 @@ class YOLOv3:
               'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
               ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
 
-    def read_video_streaming(self):
-        print("Starting Video Streaming Reader")
-        self.__load_weight()
+    def __setup_subscriber(self):
+        self.rc_data.delete(self.opt.sub_channel)
 
-        while self.auto_restart:
-            try:
-                if self.manual_stop:
-                    self.auto_restart = False
-                    break
-                self.__set_data_loader()
-                self.__feed_video_frames() # Perform detection in each frame here
-            except:
-                print("Got error while reading video streaming, restarting . . .")
-                time.sleep(2)
-
-        # print('\nFinished. Total elapsed time: (%.3fs) --> '
-        #       'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
-        #       ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
+        # Dummy set value
+        # expired_at = 2 # in seconds
+        # redis_set(self.rc_data, self.opt.sub_channel, True, expired_at)
+        redis_set(self.rc_data, self.opt.sub_channel, 1)
+        # redis_set(self.rc_data, self.opt.sub_channel, False)
 
     def waiting_frames(self):
         print("Starting YOLOv3 image detector")
@@ -118,10 +121,14 @@ class YOLOv3:
 
         self.__get_names_colors()
 
+        # Setup redis subscriber availability
+        self.__setup_subscriber()
+
         # Waiting for get the image information
-        print("\n### Waiting for get the image information")
+        stream_ch = "stream_" + self.opt.sub_channel
+        print("\n### Waiting for get the image information @ Channel `%s`" % stream_ch)
         pubsub = self.rc.pubsub()
-        pubsub.subscribe(['stream'])
+        pubsub.subscribe([stream_ch])
         for item in pubsub.listen():
             try:
                 fetch_data = json.loads(item['data'])
@@ -136,8 +143,34 @@ class YOLOv3:
                 self.__set_data_loader()
                 print(".. load image into variable in (%.3fs)" % (time.time() - t0))
 
+                # # Check worker status first, please wait while still working
+                # is_worker_ready = redis_get(self.rc_data, self.opt.sub_channel)
+                # print(">>>>>> is_worker_ready = ", is_worker_ready)
+                # if is_worker_ready:
+                #     print("\nWorker-%d is still running, waiting to finish ..." % self.opt.sub_channel)
+                #     time.sleep(0.1)
+
+                # Start processing image
+                print("\nStart processing to get MB-Box.")
+                redis_set(self.rc_data, self.opt.sub_channel, 0) # set as `Busy`
                 self.__iterate_frames()  # Perform detection in each frame here
+                # print(" >>> Hasil MB-Box Img = ", self.mbbox_img)
+
+                frame_id = str(fetch_data["frame_id"])
+                if self.mbbox_img is not None:
+                    output_path = self.opt.mbbox_output + "frame-%s.jpg" % frame_id
+                    t0 = time.time()
+                    cv2.imwrite(output_path, self.mbbox_img)
+                    print("Saving image in: ", output_path)
+                    print(".. MB-Box image is saved in (%.3fs)" % (time.time() - t0))
+                else:
+                    print("This MB-Box is NONE. nothing to be saved yet.")
+
                 # self.__save_latency_to_csv()
+
+                # Restore availibility
+                redis_set(self.rc_data, self.opt.sub_channel, 1) # set as `Ready`
+                print("\n### This Worker-%s is ready to serve again. \n\n" % self.opt.sub_channel)
             except:
                 pass
 
@@ -298,23 +331,6 @@ class YOLOv3:
                 print("\n\n #### FORCED TO BREAK HERE !!!")
                 break
 
-    # def __feed_video(self):
-    #     self.t0 = time.time()
-    #     # frame_id = 0
-    #     for path, img, im0s, vid_cap in self.dataset:
-    #         self.frame_id += 1
-    #         t = time.time()
-    #
-    #         if self.webcam:
-    #             frame_save_path = self.opt.frames_dir + "/frame-%d.jpg" % self.frame_id
-    #             cv2.imwrite(frame_save_path, img)
-    #             # cv2.imwrite(frame_save_path, im0s)
-    #
-    #         if self.frame_id > 10:
-    #             self.manual_stop = True
-    #             print("\n\n #### FORCED TO BREAK HERE !!!")
-    #             break
-
     def __iterate_frames(self):
         # Run inference
         self.t0 = time.time()
@@ -461,18 +477,5 @@ class YOLOv3:
             #
             # print("\n ### TYPE det = ", type(det))
 
-            # for xyxy in detected_mbbox:
-            #     plot_one_box(xyxy, im0, label="Person-W-Flag", color=rgb_mbbox)
-
-
-            # for *xyxy, conf, cls in det:
-            #     print("\n ### TYPE xyxy = ", type(xyxy))
-            #     label = '%s %.2f' % (self.names[int(cls)], conf)
-            #     plot_one_box(xyxy, im0, label="kucing", color=self.colors[int(cls)])
-            # extract person and flag detected objects
-            # for c in det[:, -1].unique():
-            #     pid_det[self.names[int(c)]] = [d for d in det if d[-1] == c]
-
-            # print("\n pid_det = ", len(pid_det), pid_det)
-            # print("\n pid_det = ", len(pid_det), pid_det)
-            # print(det)
+    def get_mbbox_img(self):
+        return self.mbbox_img
