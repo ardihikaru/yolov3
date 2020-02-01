@@ -6,6 +6,7 @@ from utils.utils import *
 from libs.commons.opencv_helpers import *
 
 from libs.algorithms.mbbox import Mbbox
+from redis import StrictRedis
 import json
 
 class YOLOv3:
@@ -16,6 +17,7 @@ class YOLOv3:
         self.save_path = None
         self.t0 = None
         self.str_output = ""
+        self.classify = False
 
         # (320, 192) or (416, 256) or (608, 352) for (height, width)
         self.img_size = (320, 192) if ONNX_EXPORT else opt.img_size
@@ -59,6 +61,14 @@ class YOLOv3:
         self.auto_restart = True
         self.manual_stop = False
 
+        self.rc = StrictRedis(
+            host="localhost",
+            port=6379,
+            password="bismillah",
+            db=0,
+            decode_responses=True
+        )
+
     def run(self):
         print("Starting YOLO-v3 Detection Network")
         self.__load_weight()
@@ -79,6 +89,7 @@ class YOLOv3:
     def read_video_streaming(self):
         print("Starting Video Streaming Reader")
         self.__load_weight()
+
         while self.auto_restart:
             try:
                 if self.manual_stop:
@@ -93,6 +104,43 @@ class YOLOv3:
         # print('\nFinished. Total elapsed time: (%.3fs) --> '
         #       'Inference(%.3fs); NMS(%.3fs); MB-Box(%.3fs)' %
         #       ((time.time() - self.t0), self.time_inference, self.time_nms, self.time_mbbox))
+
+    def waiting_frames(self):
+        print("Starting YOLOv3 image detector")
+        t0 = time.time()
+        self.__load_weight()
+        t_load_weight = time.time() - t0
+        print(".. Load `weight` in (%.3fs)" % t_load_weight)
+
+        t0 = time.time()
+        self.__eval_model()
+        print(".. Load function `eval_model` in (%.3fs)" % (time.time() - t0))
+
+        self.__get_names_colors()
+
+        # Waiting for get the image information
+        print("\n### Waiting for get the image information")
+        pubsub = self.rc.pubsub()
+        pubsub.subscribe(['stream'])
+        for item in pubsub.listen():
+            try:
+                fetch_data = json.loads(item['data'])
+                print('Streamer collects : ', fetch_data)
+
+                self.source = fetch_data["img_path"]
+                print('img_path : ', self.source)
+                # Load image from pub: get `img_path`
+                t0 = time.time()
+                # img_path = "/home/ardi/devel/nctu/5g-dive/docker-yolov3/output_frames"
+                # self.source = img_path + '/coba.png'
+                self.__set_data_loader()
+                print(".. load image into variable in (%.3fs)" % (time.time() - t0))
+
+                self.__iterate_frames()  # Perform detection in each frame here
+                # self.__save_latency_to_csv()
+            except:
+                pass
+
 
     def __save_latency_to_csv(self):
         save_to_csv(self.opt.latency_output, self.csv_inference, self.time_inference_list)
@@ -113,7 +161,6 @@ class YOLOv3:
 
     def __second_stage_classifier(self):
         # Second-stage classifier
-        self.classify = False
         if self.classify:
             self.modelc = torch_utils.load_classifier(name='resnet101', n=2)  # initialize
             self.modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=self.device)['model'])  # load weights
@@ -250,6 +297,23 @@ class YOLOv3:
                 self.manual_stop = True
                 print("\n\n #### FORCED TO BREAK HERE !!!")
                 break
+
+    # def __feed_video(self):
+    #     self.t0 = time.time()
+    #     # frame_id = 0
+    #     for path, img, im0s, vid_cap in self.dataset:
+    #         self.frame_id += 1
+    #         t = time.time()
+    #
+    #         if self.webcam:
+    #             frame_save_path = self.opt.frames_dir + "/frame-%d.jpg" % self.frame_id
+    #             cv2.imwrite(frame_save_path, img)
+    #             # cv2.imwrite(frame_save_path, im0s)
+    #
+    #         if self.frame_id > 10:
+    #             self.manual_stop = True
+    #             print("\n\n #### FORCED TO BREAK HERE !!!")
+    #             break
 
     def __iterate_frames(self):
         # Run inference

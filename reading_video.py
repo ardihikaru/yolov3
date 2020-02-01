@@ -24,21 +24,25 @@ from redis import StrictRedis
 
 from multiprocessing import Process
 
+# def frame_producer(my_redis, ret, frame):
 def frame_producer(my_redis, ret, frame):
-    t0 = time.time()
-    # data = {
-    #     "ret": ret,
-    #     "frame": frame.tolist()
-    # }
-    # p_mdata = json.dumps(data)
-    # print(" .. publishing")
-    # my_redis.publish('stream', p_mdata)
+    if ret:
+        # Save image
+        t0 = time.time()
+        save_path = "/home/ardi/devel/nctu/5g-dive/docker-yolov3/output_frames/hasil.jpg"
+        cv2.imwrite(save_path, frame)
+        print(".. image is saved in (%.3fs)" % (time.time() - t0))
 
-    save_path = "/home/ardi/devel/nctu/5g-dive/docker-yolov3/output_frames/hasil.jpg"
-    cv2.imwrite(save_path, frame)
-
-    t_publish = time.time() - t0
-    print(".. frame published in (%.3fs)" % t_publish)
+        # Publish information
+        t0 = time.time()
+        data = {
+            "frame_id": 1,
+            "img_path": save_path
+        }
+        p_mdata = json.dumps(data)
+        print(" .. Start publishing")
+        my_redis.publish('stream', p_mdata)
+        print(".. frame is published in (%.3fs)" % (time.time() - t0))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
