@@ -628,6 +628,7 @@ def letterbox(img, new_shape=(416, 416), color=(128, 128, 128),
               auto=True, scaleFill=False, scaleup=True, interp=cv2.INTER_AREA):
     # Resize image to a 32-pixel-multiple rectangle https://github.com/ultralytics/yolov3/issues/232
     shape = img.shape[:2]  # current shape [height, width]
+
     if isinstance(new_shape, int):
         new_shape = (new_shape, new_shape)
 

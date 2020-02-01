@@ -100,20 +100,23 @@ class IntersectionFinder:
         # 2. Then, determine the action based on the collected intersection
         # 2.1 Found one: directly marked as MB-Box
         if len(detected_intersection) == 1:
-            # 2.1.1 generate MB-Box
-            this_person_idx = detected_intersection[0]
-            flag_xyxy = get_det_xyxy(self.det[flag_idx])
-            person_xyxy = get_det_xyxy(self.det[this_person_idx])
-            mbbox_xyxy = get_mbbox(flag_xyxy, person_xyxy)
-            self.mbbox_imgs.append(mbbox_xyxy)
+            try:
+                # 2.1.1 generate MB-Box
+                this_person_idx = detected_intersection[0]
+                flag_xyxy = get_det_xyxy(self.det[flag_idx])
+                person_xyxy = get_det_xyxy(self.det[this_person_idx])
+                mbbox_xyxy = get_mbbox(flag_xyxy, person_xyxy)
+                self.mbbox_imgs.append(mbbox_xyxy)
 
-            # 2.1.2 delete this person index
-            del self.class_det["Person"][this_person_idx]
-            # 2.1.3 plot MB-Box
-            if self.plot_mbbbox:
-                if not self.opt.maximize_latency:
-                    plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                    save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                # 2.1.2 delete this person index
+                del self.class_det["Person"][this_person_idx]
+                # 2.1.3 plot MB-Box
+                if self.plot_mbbbox:
+                    if not self.opt.maximize_latency:
+                        plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
+                        save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+            except:
+                pass
 
         # 2.2 Found multi-intersection: perform kNN to get the the nearest Person object
         elif len(detected_intersection) > 1:

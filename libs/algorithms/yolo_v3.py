@@ -53,6 +53,8 @@ class YOLOv3:
         self.csv_mbbox = "time_mbbox_latency.csv"
         self.csv_default = "time_bbox_latency.csv"
 
+        self.mbbox_img = None
+
     def run(self):
         print("Starting YOLO-v3 Detection Network")
         self.__load_weight()
@@ -124,7 +126,8 @@ class YOLOv3:
         self.vid_path, self.vid_writer = None, None
         if self.webcam:
             self.view_img = True
-            self.save_img = False
+            self.save_img = True
+            # self.save_img = False
             torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
             self.dataset = LoadStreams(self.source, img_size=self.img_size, half=self.half)
         else:
@@ -152,12 +155,28 @@ class YOLOv3:
             xywh = np_xyxy2xywh(numpy_xyxy)
             crop_image(self.save_path, original_img, xywh, idx)
 
-    def __save_results(self, im0, vid_cap):
+    def __save_results(self, im0, vid_cap, frame_id):
         # Save results (image with detections)
         if self.save_img:
             if self.dataset.mode == 'images':
-                cv2.imwrite(self.save_path, im0)
+                # print("\n #### mode IMAGES: ", self.save_path)
+                # print("\n #### im0: ", im0)
+
+                if self.webcam:
+                    frame_save_path = self.opt.frames_dir + "/frame-%d.jpg" % frame_id
+                    # frame_save_path = self.opt.frames_dir + "/frame-%d.png" % frame_id
+                    if self.mbbox_img is not None:
+                        cv2.imwrite(frame_save_path, self.mbbox_img)
+                    else:
+                        cv2.imwrite(frame_save_path, im0)
+                else:
+                        cv2.imwrite(self.save_path, im0)
+                # save_path = self.save_path
+                # crop_save_path = save_path.replace('.png', '') + "-%d.png" % frame_id
+                # cv2.imwrite(crop_save_path, im0)
+                # print("#### Image @ frame-%d saved." % frame_id)
             else:
+                # print("\n #### mode Bukan IMAGES")
                 if self.vid_path != self.save_path:  # new video
                     self.vid_path = self.save_path
                     if isinstance(self.vid_writer, cv2.VideoWriter):
@@ -173,7 +192,9 @@ class YOLOv3:
     def __iterate_frames(self):
         # Run inference
         self.t0 = time.time()
+        frame_id = 0
         for path, img, im0s, vid_cap in self.dataset:
+            frame_id += 1
             t = time.time()
 
             # Get detections
@@ -249,12 +270,12 @@ class YOLOv3:
                            t_inference, t_nms, t_mbbox, t_default))
 
                     # Stream results
-                    if self.view_img:
-                        cv2.imshow(p, im0)
-                        if cv2.waitKey(1) == ord('q'):  # q to quit
-                            raise StopIteration
+                    # if self.view_img:
+                    #     cv2.imshow(p, im0)
+                    #     if cv2.waitKey(1) == ord('q'):  # q to quit
+                    #         raise StopIteration
 
-                    self.__save_results(im0, vid_cap)
+                    self.__save_results(im0, vid_cap, frame_id)
             # print('\n # Total MB-Box time: (%.3fs)' % (time.time() - ts_mbbox))
 
 
@@ -305,16 +326,17 @@ class YOLOv3:
             self.mbbox = Mbbox(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
             self.mbbox.run()
             # im0 = self.mbbox.get_mbbox_img() # overriding img value here.
-            detected_mbbox = self.mbbox.get_detected_mbbox()
-            rgb_mbbox = self.mbbox.get_rgb_mbbox()
-            if len(detected_mbbox) > 0:
-                print("\n ############### DETECTED MB-Box = ", len(detected_mbbox))
-                print("\n ### TYPE detected_mbbox = ", type(detected_mbbox[0]))
+            # detected_mbbox = self.mbbox.get_detected_mbbox()
+            # rgb_mbbox = self.mbbox.get_rgb_mbbox()
+            self.mbbox_img = self.mbbox.get_mbbox_img()
+            # if len(detected_mbbox) > 0:
+            #     print("\n ############### DETECTED MB-Box = ", len(detected_mbbox))
+            #     print("\n ### TYPE detected_mbbox = ", type(detected_mbbox[0]))
+            #
+            # print("\n ### TYPE det = ", type(det))
 
-            print("\n ### TYPE det = ", type(det))
-
-            for xyxy in detected_mbbox:
-                plot_one_box(xyxy, im0, label="Person-W-Flag", color=rgb_mbbox)
+            # for xyxy in detected_mbbox:
+            #     plot_one_box(xyxy, im0, label="Person-W-Flag", color=rgb_mbbox)
 
 
             # for *xyxy, conf, cls in det:

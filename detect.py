@@ -9,7 +9,7 @@ from libs.algorithms.yolo_v3 import YOLOv3
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--is_http_stream', type=bool, default=True, help='If set True, it marked the SOURCE as HTTP Stream')
+    parser.add_argument('--frames_dir', type=str, default="output_frames", help='Frame by frame output')
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
     parser.add_argument('--latency_output', type=str, default="saved_latency/tmp", help='Output location for latency results')
     # parser.add_argument('--maximize_latency', type=bool, default=True, help='Enable max latency (disabling some features)')
@@ -43,14 +43,15 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='data/5g-dive/customTest_MIRC-Roadside-5s-frame-rev-PersonFlag', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-3.flv', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-2.flv', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--img-size', type=int, default=832, help='inference size (pixels)')
-    # parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
-    parser.add_argument('--conf-thres', type=float, default=0.1, help='object confidence threshold')
-    # parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
-    parser.add_argument('--iou-thres', type=float, default=0.1, help='IOU threshold for NMS')
+    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
+    # parser.add_argument('--conf-thres', type=float, default=0.1, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
+    # parser.add_argument('--iou-thres', type=float, default=0.1, help='IOU threshold for NMS')
     parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')

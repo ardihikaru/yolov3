@@ -96,6 +96,9 @@ def detect(save_img=False):
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
                 p, s, im0 = path[i], '%g: ' % i, im0s[i]
+                print("\n ##### p = ", p)
+                print("\n ##### im0 = ", im0)
+                print("\n ##### im0 type = ", type(im0))
             else:
                 p, s, im0 = path, '', im0s
 
@@ -124,14 +127,16 @@ def detect(save_img=False):
             print('%sDone. (%.3fs)' % (s, time.time() - t))
 
             # Stream results
-            if view_img:
-                cv2.imshow(p, im0)
-                if cv2.waitKey(1) == ord('q'):  # q to quit
-                    raise StopIteration
+            # if view_img:
+            #     cv2.imshow(p, im0)
+            #     if cv2.waitKey(1) == ord('q'):  # q to quit
+            #         raise StopIteration
 
             # Save results (image with detections)
             if save_img:
                 if dataset.mode == 'images':
+                    # Ardi: Sepertinya mode ini sih..
+                    print("\n ###### Dataset Mode IMAGES, save_path = ", save_path)
                     cv2.imwrite(save_path, im0)
                 else:
                     if vid_path != save_path:  # new video
@@ -168,7 +173,8 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-3.flv', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-3.flv', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--img-size', type=int, default=832, help='inference size (pixels)')
