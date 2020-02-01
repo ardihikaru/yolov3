@@ -25,7 +25,7 @@ This directory contains PyTorch YOLOv3 software developed by Ultralytics LLC, an
 The https://github.com/ultralytics/yolov3 repo contains inference and training code for YOLOv3 in PyTorch. The code works on Linux, MacOS and Windows. Training is done on the COCO dataset by default: https://cocodataset.org/#home. **Credit to Joseph Redmon for YOLO:** https://pjreddie.com/darknet/yolo/.
 
 # Table of Contents
-// TBD
+**// TBD**
 
 # 5g-dive implementation
 ### Requirements
@@ -60,7 +60,7 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
         - **output_folder**: Default location where **Raw Image** will be stored. 
             It will be used by each `worker` to run the YOLOv3 Object Detection
         - **source**: Source video streaming (or video file). Currently tested with: 
-            - Video files: *.mp4
+            - Video files: `*.mp4`
             - Video Streaming: `RTSP` and `HTTP`   
 
 ##### All dependencies are included in the associated docker images. Docker requirements are: 
