@@ -163,13 +163,27 @@ class YOLOv3:
                 # print(" >>> Hasil MB-Box Img = ", self.mbbox_img)
 
                 frame_id = str(fetch_data["frame_id"])
+                prev_fid = str(self.opt.drone_id) + "-" + str((int(frame_id)-1))
                 if self.mbbox_img is not None:
                     # output_path = self.opt.mbbox_output + "frame-%s.jpg" % frame_id
                     output_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%s.jpg" % frame_id
+
+                    # Try writing synchronously: store ONLY when (frame-1) has been stored
+                    # print(" ######## PREV_ID = ", redis_get(self.rc, prev_fid))
+                    while redis_get(self.rc, prev_fid) is None and int(frame_id) > 1:
+                        # print(" ######## Waiting previous frame to be stored. PREV_ID = ", redis_get(self.rc, prev_fid))
+                        # time.sleep(1)
+                        pass
+
                     t0 = time.time()
                     cv2.imwrite(output_path, self.mbbox_img)
-                    print("Saving image in: ", output_path)
+                    # print("Saving image in: ", output_path)
                     print(".. MB-Box image is saved in (%.3fs)" % (time.time() - t0))
+
+                    # Set that this frame has been successfully added
+                    expired_at = 20  # in seconds
+                    key = str(self.opt.drone_id) + "-" + frame_id
+                    redis_set(self.rc, key, True, expired_at)
                 else:
                     print("This MB-Box is NONE. nothing to be saved yet.")
 
@@ -178,6 +192,9 @@ class YOLOv3:
                 # Restore availibility
                 redis_set(self.rc_data, self.opt.sub_channel, 1) # set as `Ready`
                 print("\n### This Worker-%s is ready to serve again. \n\n" % self.opt.sub_channel)
+
+                # Set prev_fid as DONE
+                redis_set(self.rc_data, prev_fid, None) # set as `Ready`
             except:
                 pass
 
