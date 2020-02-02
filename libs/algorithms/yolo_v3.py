@@ -33,6 +33,12 @@ class YOLOv3:
             shutil.rmtree(self.out)  # delete output folder
         os.makedirs(self.out)  # make new output folder
 
+        # Empty folders
+        mbbox_folder = opt.mbbox_output + str(opt.drone_id)
+        if os.path.exists(mbbox_folder):
+            shutil.rmtree(mbbox_folder)  # delete output folder
+        os.makedirs(mbbox_folder)  # make new output folder
+
         # Initialize model
         self.model = Darknet(opt.cfg, self.img_size)
         self.mbbox = None # Merge Bounding Box
@@ -158,7 +164,8 @@ class YOLOv3:
 
                 frame_id = str(fetch_data["frame_id"])
                 if self.mbbox_img is not None:
-                    output_path = self.opt.mbbox_output + "frame-%s.jpg" % frame_id
+                    # output_path = self.opt.mbbox_output + "frame-%s.jpg" % frame_id
+                    output_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%s.jpg" % frame_id
                     t0 = time.time()
                     cv2.imwrite(output_path, self.mbbox_img)
                     print("Saving image in: ", output_path)

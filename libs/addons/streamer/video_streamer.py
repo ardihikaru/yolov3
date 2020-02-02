@@ -23,6 +23,12 @@ class VideoStreamer:
 
         self.worker_id = 0 # reset, when total workers = `self.opt.total_workers`
 
+        # Empty folders
+        out_folder = opt.output_folder + str(opt.drone_id)
+        if os.path.exists(out_folder):
+            shutil.rmtree(out_folder)  # delete output folder
+        os.makedirs(out_folder)  # make new output folder
+
     def __set_redis(self):
         self.rc = StrictRedis(
             host=common_settings["redis_config"]["hostname"],
@@ -130,7 +136,8 @@ class VideoStreamer:
 
                     if ret:
                         frame_id += 1
-                        save_path = self.opt.output_folder + "frame-%d.jpg" % frame_id
+                        # save_path = self.opt.output_folder + "frame-%d.jpg" % frame_id
+                        save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
                         self.__load_balancing(frame_id, ret, frame, save_path)
 
                         if self.opt.enable_cv_out:
