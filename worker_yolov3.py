@@ -9,7 +9,8 @@ from libs.algorithms.yolo_v3 import YOLOv3
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mbbox_output', type=str, default="/home/ardi/devel/nctu/5g-dive/docker-yolov3/mbbox_frames/", help='Redis Subcriber channel')
+    # parser.add_argument('--mbbox_output', type=str, default="/home/ardi/devel/nctu/5g-dive/docker-yolov3/mbbox_frames/", help='Redis Subcriber channel')
+    parser.add_argument('--mbbox_output', type=str, default="mbbox_frames/", help='Redis Subcriber channel')
     parser.add_argument('--sub_channel', type=str, default="1", help='Redis Subcriber channel')
     parser.add_argument('--frames_dir', type=str, default="output_frames", help='Frame by frame output')
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
@@ -41,13 +42,13 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-n-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-1-frame', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames/out8.png', help='source')  # input file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames/out8.png', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/false-frame', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/customTest_MIRC-Roadside-5s-frame-rev-PersonFlag', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-3.flv', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-2.flv', help='source')  # input file/folder, 0 for webcam
-    # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--img-size', type=int, default=832, help='inference size (pixels)')
