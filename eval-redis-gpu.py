@@ -46,7 +46,7 @@ class Plot:
         # self.num_frames = self.last_frame_id + 1
         self.num_frames = self.last_frame_id
 
-        self.total_frames = 10
+        # self.total_frames = 10
 
         # print(" Current Keys = ", self.rc_latency.keys())
         # print(" >>> last Frame Number = ", self.last_frame_id)
