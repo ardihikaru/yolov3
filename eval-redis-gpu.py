@@ -213,9 +213,28 @@ class Plot:
 
     def run(self):
         self.load_data()
+
+        # to smooth the graph
+        self.discard_frame_one()
+
         self.frame_communication_latency_graph()
         self.frame_processing_latency_graph()
         self.end2end_latency_graph()
+
+    def discard_frame_one(self):
+        del self.read2stream[0]
+        del self.frame2disk[0]
+        del self.pub2frame[0]
+        del self.sub2frame[0]
+
+        del self.yolo_load_img[0]
+        del self.yolo_inference[0]
+        del self.yolo_nms[0]
+        del self.yolo_mbbox[0]
+
+        del self.end2end_frame[0]
+
+        self.num_frames = self.num_frames - 1
 
     def frame_communication_latency_graph(self):
         # Define number of iteration (K)
