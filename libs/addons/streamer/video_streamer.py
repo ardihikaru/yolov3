@@ -157,7 +157,7 @@ class VideoStreamer:
 
                     if ret:
                         # Start capturing here
-                        if self.min_frames == received_frame_id:
+                        if received_frame_id >= self.min_frames:
                             frame_id += 1
                             # Force stop
                             if frame_id > int(self.max_frames):
