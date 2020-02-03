@@ -13,6 +13,9 @@ class VideoStreamer:
         self.save_path = opt.output_folder
         self.__set_redis()
 
+        self.is_running = True
+        self.max_frames = opt.max_frames
+
         # set waiting time based on the worker type: CPU or GPU
         self.device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
         # heartbeat msg to check worker status
@@ -56,7 +59,8 @@ class VideoStreamer:
 
     def run(self):
         print("\nReading video:")
-        while True:
+        # while True:
+        while self.is_running:
             try:
                 self.cap = cv.VideoCapture(self.opt.source)
 
@@ -127,8 +131,10 @@ class VideoStreamer:
         # Save timestamp to start extracting video streaming.
         t_start_key = "start-" + str(self.opt.drone_id)
         redis_set(self.rc_latency, t_start_key, time.time())
-        while (self.cap.isOpened()):
+        # while (self.cap.isOpened()):
+        while (self.cap.isOpened()) and self.is_running:
             received_frame_id += 1
+
             t_sframe_key = "start-fi-" + str(self.opt.drone_id) # to calculate end2end latency each frame.
             redis_set(self.rc_latency, t_sframe_key, time.time())
 
@@ -149,6 +155,11 @@ class VideoStreamer:
 
                     if ret:
                         frame_id += 1
+
+                        # Force stop
+                        if frame_id > int(self.max_frames):
+                            self.is_running = False
+                            break
 
                         save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
                         self.__load_balancing(frame_id, ret, frame, save_path)

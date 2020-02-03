@@ -4,6 +4,8 @@ from libs.addons.streamer.video_streamer import VideoStreamer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--max_frames', type=int, default=595, help='Max Frames')
+    # parser.add_argument('--max_frames', type=int, default=5, help='Max Frames')
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
     # parser.add_argument("--total_workers", type=int, default=3, help="path to dataset")
