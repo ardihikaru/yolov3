@@ -311,7 +311,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
                 # print("type = ", type(my_img))
                 # print("\n ### Total img collected here = %d" % len(self.imgs))
                 n = 0
-            # time.sleep(0.01)  # wait time
+            time.sleep(0.01)  # wait time
 
     def __iter__(self):
         self.count = -1

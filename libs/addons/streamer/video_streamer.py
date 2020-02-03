@@ -156,10 +156,9 @@ class VideoStreamer:
                 if n == self.opt.delay:  # read every n-th frame
 
                     if ret:
-                        frame_id += 1
-
                         # Start capturing here
-                        if self.min_frames == frame_id:
+                        if self.min_frames == received_frame_id:
+                            frame_id += 1
                             # Force stop
                             if frame_id > int(self.max_frames):
                                 self.is_running = False
