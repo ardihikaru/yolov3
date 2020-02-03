@@ -4,9 +4,10 @@ from libs.addons.streamer.video_streamer import VideoStreamer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--disable_delay', type=bool, default=True, help='Max Frames')
-    parser.add_argument('--min_frames', type=int, default=201, help='Min Frames')
-    parser.add_argument('--max_frames', type=int, default=300, help='Max Frames')
+    parser.add_argument('--disable_delay', type=bool, default=True, help='Enable/disable delay')
+    parser.add_argument('--start_frame_id', type=int, default=201, help='Start frame ID')
+    parser.add_argument('--max_frames', type=int, default=100, help='Max Frames')
+    # parser.add_argument('--max_frames', type=int, default=300, help='Max Frames')
     # parser.add_argument('--max_frames', type=int, default=5, help='Max Frames')
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')

@@ -15,7 +15,7 @@ class VideoStreamer:
 
         self.is_running = True
         self.max_frames = opt.max_frames
-        self.min_frames = opt.min_frames
+        self.start_frame_id = opt.start_frame_id
 
         # set waiting time based on the worker type: CPU or GPU
         self.device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
@@ -158,7 +158,7 @@ class VideoStreamer:
 
                     if ret:
                         # Start capturing here
-                        if received_frame_id >= self.min_frames:
+                        if received_frame_id >= self.start_frame_id:
                             frame_id += 1
                             # Force stop after n frames
                             # if frame_id > int(self.max_frames):
