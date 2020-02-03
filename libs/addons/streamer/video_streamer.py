@@ -71,7 +71,7 @@ class VideoStreamer:
                 self.__start_streaming()
             except:
                 print("\nUnable to communicate with the Streaming. Restarting . . .")
-                time.sleep(1) # Delay 1 second before trying again
+                # time.sleep(1) # Delay 1 second before trying again
                 # The following frees up resources and closes all windows
                 self.cap.release()
                 if self.opt.enable_cv_out:
@@ -110,7 +110,8 @@ class VideoStreamer:
             while self.__worker_status() == 0:
                 print("\nWorker-%d is still processing other image, waiting (%ds) ..." % (self.worker_id, w))
                 # time.sleep(0.005)
-                time.sleep(self.wait_time)
+                if not self.opt.disable_delay:
+                    time.sleep(self.wait_time)
                 w += self.wait_time
 
             # Send multi-process and set the worker as busy (value=False)
