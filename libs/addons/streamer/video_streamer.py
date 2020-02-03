@@ -46,6 +46,14 @@ class VideoStreamer:
             decode_responses=True
         )
 
+        self.rc_latency = StrictRedis(
+            host=common_settings["redis_config"]["hostname"],
+            port=common_settings["redis_config"]["port"],
+            password=common_settings["redis_config"]["password"],
+            db=common_settings["redis_config"]["db_latency"],
+            decode_responses=True
+        )
+
     def run(self):
         print("\nReading video:")
         while True:
@@ -103,40 +111,45 @@ class VideoStreamer:
 
             # Send multi-process and set the worker as busy (value=False)
             print("### Sending the work into [worker-#%d] @ `%s`" % ((self.worker_id), stream_channel))
-            Process(target=frame_producer, args=(self.rc, frame_id, ret, frame, save_path, stream_channel,)).start()
+            Process(target=frame_producer, args=(self.rc, frame_id, ret, frame, save_path, stream_channel,
+                                                 self.rc_latency, self.opt.drone_id,)).start()
             redis_set(self.rc_data, self.worker_id, 0)
 
         self.__reset_worker()
 
     def __start_streaming(self):
-        # Testing only. please disable this in the future
-        sekali = True
-
         n = 0
         frame_id = 0
+        received_frame_id = 0
+        # t_start = time.time()
+        # redis_set(self.rc_latency, "start", t_start)
+
+        # Save timestamp to start extracting video streaming.
+        t_start_key = "start-" + str(self.opt.drone_id)
+        redis_set(self.rc_latency, t_start_key, time.time())
         while (self.cap.isOpened()):
-            # frame_id += 1
+            received_frame_id += 1
+            t_sframe_key = "start-fi-" + str(self.opt.drone_id) # to calculate end2end latency each frame.
+            redis_set(self.rc_latency, t_sframe_key, time.time())
+
             n += 1
 
+            t0_frame = time.time()
             # ret = a boolean return value from getting the frame, frame = the current frame being projected in the video
             try:
                 ret, frame = self.cap.read()
 
-                if n == self.opt.delay:  # read every n-th frame
+                # Latency: capture each frame
+                t_frame = time.time() - t0_frame
+                print('\nLatency [Reading stream image] of frame-%d: (%.5fs)' % (received_frame_id, t_frame))
+                t_frame_key = "frame-" + str(self.opt.drone_id) + "-" + str(frame_id)
+                redis_set(self.rc_latency, t_frame_key, t_frame)
 
-                    # # For testing purpose. please disable this in the future
-                    # if sekali:
-                    #     # Process(target=self.__frame_producer, args=(self.rc, frame_id, ret, frame,)).start()
-                    #     save_path = self.opt.output_folder + "frame-%d.jpg" % frame_id
-                    #     self.__load_balancing(frame_id, ret, frame, save_path)
-                    #     # Process(target=frame_producer, args=(self.rc, frame_id, ret, frame, save_path, )).start()
-                    #
-                    #     if frame_id > 1:
-                    #         sekali = False
+                if n == self.opt.delay:  # read every n-th frame
 
                     if ret:
                         frame_id += 1
-                        # save_path = self.opt.output_folder + "frame-%d.jpg" % frame_id
+
                         save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
                         self.__load_balancing(frame_id, ret, frame, save_path)
 
