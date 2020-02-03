@@ -190,8 +190,8 @@ class Plot:
         key = "end2end-" + str(self.opt.drone_id)
         value = redis_get(self.rc_latency, key)
         # print("# Key, value = ", value)
-        if self.to_ms:
-            value = value * 1000
+        # if self.to_ms:
+        #     value = value * 1000
         self.end2end = value
 
     def load_data(self):
@@ -281,7 +281,7 @@ class Plot:
         ks = int_to_tuple(K)  # used to plot the results
 
         fig = plt.figure()
-        title = "End-to-end Pattern Recognition (PR) Latency"
+        title = "End-to-end Pattern Recognition (PR) Latency; total=(%.2fs)" % self.end2end
         plt.title(title)
         plt.plot(ks, self.end2end_frame, label='End-to-end PR Latency')
         plt.xlabel('Frame ID')
