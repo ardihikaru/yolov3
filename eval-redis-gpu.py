@@ -49,7 +49,7 @@ class Plot:
         self.total_frames = 10
 
         # print(" Current Keys = ", self.rc_latency.keys())
-        # print(" >>> last frame id = ", self.last_frame_id)
+        # print(" >>> last Frame Number = ", self.last_frame_id)
 
         # self.latency_output = "saved_latency"
         # self.sub_path = "/comparison-gpu/custom"
@@ -244,11 +244,14 @@ class Plot:
         fig = plt.figure()
         title = "Communication Latency"
         plt.title(title)
-        plt.plot(ks, self.read2stream, label='Per Frame Streaming Latency')
-        plt.plot(ks, self.frame2disk, label='Save frame to disk Latency')
-        plt.plot(ks, self.pub2frame, label='Publish frame Latency')
-        plt.plot(ks, self.sub2frame, label='Subscribe frame Latency')
-        plt.xlabel('Frame ID')
+        # plt.plot(ks, self.read2stream, label='Per Frame Streaming')
+        # plt.plot(ks, self.read2stream, label='Frame acquisition')
+        plt.plot(ks, self.read2stream, label='Frame capture')
+        # plt.plot(ks, self.frame2disk, label='Save frame to disk')
+        plt.plot(ks, self.frame2disk, label='Frame storing')
+        plt.plot(ks, self.pub2frame, label='Frame publication')
+        plt.plot(ks, self.sub2frame, label='Frame Subscription')
+        plt.xlabel('Frame Number')
         plt.ylabel('Latency (ms)')
         plt.legend()
         plt.show()
@@ -263,12 +266,13 @@ class Plot:
         fig = plt.figure()
         title = "Processing Latency"
         plt.title(title)
-        plt.plot(ks, self.yolo_load_img, label='Image Retrieval Latency')
-        plt.plot(ks, self.yolo_inference, label='Inference Latency')
-        plt.plot(ks, self.yolo_nms, label='NMS Latency')
-        plt.plot(ks, self.yolo_mbbox, label='MB-Box Latency')
+        # plt.plot(ks, self.yolo_load_img, label='Image Retrieval')
+        plt.plot(ks, self.yolo_load_img, label='Image Loading')
+        plt.plot(ks, self.yolo_inference, label='Inference')
+        plt.plot(ks, self.yolo_nms, label='NMS')
+        plt.plot(ks, self.yolo_mbbox, label='MB-Box')
         # plt.plot(ks, self.yolo_draw_bbox, label='Draw Normal B-Box Latency')
-        plt.xlabel('Frame ID')
+        plt.xlabel('Frame Number')
         plt.ylabel('Latency (ms)')
         plt.legend()
         plt.show()
@@ -281,10 +285,11 @@ class Plot:
         ks = int_to_tuple(K)  # used to plot the results
 
         fig = plt.figure()
-        title = "End-to-end Pattern Recognition (PR) Latency; total=(%.2fs)" % self.end2end
+        # title = "End-to-end Pattern Recognition (PR) Latency; total=(%.2fs)" % self.end2end
+        title = "End-to-end Pattern Recognition (PR) Latency"
         plt.title(title)
-        plt.plot(ks, self.end2end_frame, label='End-to-end PR Latency')
-        plt.xlabel('Frame ID')
+        plt.plot(ks, self.end2end_frame, label='End-to-end')
+        plt.xlabel('Frame Number')
         plt.ylabel('Latency (ms)')
         plt.legend()
         plt.show()
