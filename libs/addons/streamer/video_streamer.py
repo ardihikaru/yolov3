@@ -109,7 +109,8 @@ class VideoStreamer:
         else:
             # None = DISABLED; 1=Ready; 0=Busy
             while self.__worker_status() == 0:
-                print("\nWorker-%d is still processing other image, waiting (%ds) ..." % (self.worker_id, w))
+                # print("\nWorker-%d is still processing other image, waiting (%ds) ..." % (self.worker_id, w))
+                print("\nWorker-%d is still processing other image, waiting ... " % self.worker_id)
                 # time.sleep(0.005)
                 if not self.opt.disable_delay:
                     time.sleep(self.wait_time)
@@ -159,8 +160,9 @@ class VideoStreamer:
                         # Start capturing here
                         if received_frame_id >= self.min_frames:
                             frame_id += 1
-                            # Force stop
-                            if frame_id > int(self.max_frames):
+                            # Force stop after n frames
+                            # if frame_id > int(self.max_frames):
+                            if frame_id == (int(self.max_frames) + 1):
                                 self.is_running = False
                                 break
 
