@@ -15,6 +15,7 @@ class VideoStreamer:
 
         self.is_running = True
         self.max_frames = opt.max_frames
+        self.min_frames = opt.min_frames
 
         # set waiting time based on the worker type: CPU or GPU
         self.device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
@@ -157,16 +158,19 @@ class VideoStreamer:
                     if ret:
                         frame_id += 1
 
-                        # Force stop
-                        if frame_id > int(self.max_frames):
-                            self.is_running = False
-                            break
+                        # Start capturing here
+                        if self.min_frames == frame_id:
+                            # Force stop
+                            if frame_id > int(self.max_frames):
+                                self.is_running = False
+                                break
 
-                        save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
-                        self.__load_balancing(frame_id, ret, frame, save_path)
+                            save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+                            self.__load_balancing(frame_id, ret, frame, save_path)
 
-                        if self.opt.enable_cv_out:
-                            cv.imshow("Image", frame)
+                            if self.opt.enable_cv_out:
+                                cv.imshow("Image", frame)
+
                     else:
                         print("IMAGE is INVALID.")
                         print("I guess there is no more frame to show.")
