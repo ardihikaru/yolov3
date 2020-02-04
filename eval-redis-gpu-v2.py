@@ -234,12 +234,26 @@ class Plot:
         # to smooth the graph
         # self.discard_frame_one()
 
-        self.export_frame_latency()
+        # self.export_frame_latency()
 
-        self.frame_communication_latency_graph()
+        # self.frame_communication_latency_graph()
         # self.frame_processing_latency_graph()
-        self.end2end_latency_graph()
+        # self.end2end_latency_graph()
         self.end2end_comparison_graph()
+
+    # Due to round robin load balancing
+    def calc_w_3(self, frame_id):
+        f6 = self.end2end_frame[(frame_id-1)]
+        f5 = self.end2end_frame[(frame_id-2)]
+        f4 = self.end2end_frame[(frame_id-3)]
+        f3 = self.end2end_frame[(frame_id-4)]
+        f2 = self.end2end_frame[(frame_id-5)]
+        f1 = self.end2end_frame[(frame_id-6)]
+        w1 = (f1 + f4)/2
+        w2 = (f2 + f5)/2
+        w3 = (f3 + f6)/2
+        total = w1 + w2 + w3
+        return total
 
     def export_frame_latency(self):
         self.couple_latency = []
@@ -248,7 +262,14 @@ class Plot:
         for frame_id in range(1, (self.num_frames+1)):
             tmp_total += self.end2end_frame[(frame_id-1)]
             if frame_id % self.opt.sum_total == 0:
-                self.couple_latency.append(tmp_total)
+                if self.opt.num_workers == 1:
+                    self.couple_latency.append(tmp_total)
+                elif self.opt.num_workers == 3:
+                    total = self.calc_w_3(frame_id)
+                    self.couple_latency.append(total)
+                elif self.opt.num_workers == 6:
+                    total = tmp_total / 6
+                    self.couple_latency.append(total)
                 tmp_total = 0
                 self.total_data_points += 1
 
@@ -323,19 +344,24 @@ class Plot:
         fig.savefig(self.latency_output + 'processing_latency_per_frame.png', dpi=fig.dpi)
 
     def end2end_comparison_graph(self):
-        # Define number of iteration (K)
-        K = self.total_data_points
-        ks = int_to_tuple(K)  # used to plot the results
 
         worker1, worker2, worker3 = None, None, None
         try:
             worker1 = self.read_data('sum-latency-w=1.csv')
-            # worker2 = self.read_data('sum-latency-w=3.csv')
-            worker2 = self.read_data('sum-latency-w=1.csv')
-            # worker3 = self.read_data('sum-latency-w=6.csv')
-            worker3 = self.read_data('sum-latency-w=1.csv')
+            worker2 = self.read_data('sum-latency-w=3.csv')
+            worker3 = self.read_data('sum-latency-w=6.csv')
         except:
             pass
+
+        del worker1[0]
+        del worker2[0]
+        del worker3[0]
+
+        # Define number of iteration (K)
+        # K = self.total_data_points
+        K = len(worker1)
+        K = len(worker1)
+        ks = int_to_tuple(K)  # used to plot the results
 
         if worker1 is not None and worker2 is not None and worker3 is not None:
             fig = plt.figure()
@@ -348,8 +374,8 @@ class Plot:
             plt.ylabel('Latency (ms)')
             plt.legend()
 
-            x_info = [str(i) for i in range(1, K + 1)]
-            plt.xticks(ks, x_info)
+            # x_info = [str(i) for i in range(1, K + 1)]
+            # plt.xticks(ks, x_info)
 
             plt.show()
             # print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')
@@ -368,8 +394,8 @@ class Plot:
         plt.ylabel('Latency (ms)')
         plt.legend()
 
-        x_info = [str(i) for i in range(1, K+1)]
-        plt.xticks(ks, x_info)
+        # x_info = [str(i) for i in range(1, K+1)]
+        # plt.xticks(ks, x_info)
 
         plt.show()
         # print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')

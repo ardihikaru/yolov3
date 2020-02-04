@@ -5,7 +5,7 @@ from libs.addons.streamer.video_streamer import VideoStreamer
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--disable_delay', type=bool, default=True, help='Enable/disable delay')
-    parser.add_argument('--start_frame_id', type=int, default=151, help='Start frame ID')
+    parser.add_argument('--start_frame_id', type=int, default=601, help='Start frame ID')
     # parser.add_argument('--start_frame_id', type=int, default=11, help='Start frame ID')
     # parser.add_argument('--max_frames', type=int, default=18, help='Max Frames')
     # parser.add_argument('--max_frames', type=int, default=24, help='Max Frames')
@@ -15,8 +15,8 @@ if __name__ == "__main__":
     # parser.add_argument('--drone_id', type=int, default=3, help='Drone ID')
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
+    # parser.add_argument("--total_workers", type=int, default=6, help="path to dataset")
     # parser.add_argument("--total_workers", type=int, default=3, help="path to dataset")
-    # parser.add_argument("--total_workers", type=int, default=2, help="path to dataset")
     parser.add_argument("--total_workers", type=int, default=1, help="path to dataset")
     parser.add_argument("--enable_cv_out", type=bool, default=False, help="path to dataset")
     # parser.add_argument("--enable_cv_out", type=bool, default=True, help="path to dataset")
