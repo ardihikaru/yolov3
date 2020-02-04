@@ -75,6 +75,8 @@ class Plot:
             value = value * 1000
         self.stream_setup = value
 
+        self.save_to_csv('01_stream_setup_latency-w=%d.csv' % self.opt.num_workers, [self.stream_setup])  # X is an array
+
     # @`reading_video.py`
     def get_read_stream_latency(self):
         self.read2stream = []
@@ -93,6 +95,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.read2stream.append(value)
 
+        self.save_to_csv('02_read_stream_latency-w=%d.csv' % self.opt.num_workers, self.read2stream)  # X is an array
+
     # @`reading_video.py`
     def get_frame2disk_latency(self):
         self.frame2disk = []
@@ -104,6 +108,8 @@ class Plot:
                 value = value * 1000
             # print("# Key[`%s`], value = " % key, value)
             self.frame2disk.append(value)
+
+        self.save_to_csv('03_frame2disk_latency-w=%d.csv' % self.opt.num_workers, self.frame2disk)  # X is an array
 
     # @`reading_video.py`
     def get_pub2frame_latency(self):
@@ -117,6 +123,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.pub2frame.append(value)
 
+        self.save_to_csv('04_pub2frame_latency-w=%d.csv' % self.opt.num_workers, self.pub2frame)  # X is an array
+
     # @`worker_yolov3.py`
     def get_sub2frame_latency(self):
         self.sub2frame = []
@@ -128,6 +136,8 @@ class Plot:
                 value = value * 1000
             # print("# Key[`%s`], value = " % key, value)
             self.sub2frame.append(value)
+
+        self.save_to_csv('05_sub2frame_latency-w=%d.csv' % self.opt.num_workers, self.sub2frame)  # X is an array
 
     # @`worker_yolov3.py`
     def get_yolo_load_img_latency(self):
@@ -141,6 +151,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_load_img.append(value)
 
+        self.save_to_csv('06_yolo_load_img_latency-w=%d.csv' % self.opt.num_workers, self.yolo_load_img)  # X is an array
+
     # @`worker_yolov3.py`
     def get_yolo_inference_latency(self):
         self.yolo_inference = []
@@ -152,6 +164,8 @@ class Plot:
                 value = value * 1000
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_inference.append(value)
+
+        self.save_to_csv('07_yolo_inference_latency-w=%d.csv' % self.opt.num_workers, self.yolo_inference)  # X is an array
 
     # @`worker_yolov3.py`
     def get_yolo_nms_latency(self):
@@ -165,6 +179,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_nms.append(value)
 
+        self.save_to_csv('08_yolo_nms_latency-w=%d.csv' % self.opt.num_workers, self.yolo_nms)  # X is an array
+
     # @`worker_yolov3.py`
     def get_yolo_mbbox_latency(self):
         self.yolo_mbbox = []
@@ -176,6 +192,8 @@ class Plot:
                 value = value * 1000
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_mbbox.append(value)
+
+        self.save_to_csv('09_yolo_mbbox_latency-w=%d.csv' % self.opt.num_workers, self.yolo_mbbox)  # X is an array
 
     # @`worker_yolov3.py`
     def get_yolo_draw_bbox_latency(self):
@@ -189,6 +207,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_draw_bbox.append(value)
 
+        self.save_to_csv('10_yolo_draw_bbox_latency-w=%d.csv' % self.opt.num_workers, self.yolo_draw_bbox)  # X is an array
+
     # @`worker_yolov3.py`
     def get_end2end_frame_latency(self):
         self.end2end_frame = []
@@ -201,6 +221,8 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.end2end_frame.append(value)
 
+        self.save_to_csv('11_end2end_frame_latency-w=%d.csv' % self.opt.num_workers, self.end2end_frame)  # X is an array
+
     # @`worker_yolov3.py`
     def get_end2end_latency(self):
         key = "end2end-" + str(self.opt.drone_id)
@@ -209,6 +231,8 @@ class Plot:
         # if self.to_ms:
         #     value = value * 1000
         self.end2end = value
+
+        self.save_to_csv('12_end2end_latency-w=%d.csv' % self.opt.num_workers, [self.end2end])  # X is an array
 
     def load_data(self):
         # @`reading_video.py`
