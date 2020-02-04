@@ -258,12 +258,12 @@ class Plot:
         # to smooth the graph
         # self.discard_frame_one()
 
-        # self.export_frame_latency()
+        self.export_frame_latency()
 
-        # self.frame_communication_latency_graph()
-        # self.frame_processing_latency_graph()
+        self.frame_communication_latency_graph()
+        self.frame_processing_latency_graph()
         # self.end2end_latency_graph()
-        self.end2end_comparison_graph()
+        # self.end2end_comparison_graph()
 
     # Due to round robin load balancing
     def calc_w_3(self, frame_id):
@@ -377,17 +377,20 @@ class Plot:
         except:
             pass
 
-        del worker1[0]
-        del worker2[0]
-        del worker3[0]
-
-        # Define number of iteration (K)
-        # K = self.total_data_points
-        K = len(worker1)
-        K = len(worker1)
-        ks = int_to_tuple(K)  # used to plot the results
-
         if worker1 is not None and worker2 is not None and worker3 is not None:
+            del worker1[0]
+            del worker2[0]
+            del worker3[0]
+
+            # Define number of iteration (K)
+            # K = self.total_data_points
+            K = len(worker1)
+            ks = int_to_tuple(K)  # used to plot the results
+
+            print("LEN worker1:", len(worker1))
+            print("LEN worker2:", len(worker2))
+            print("LEN worker3:", len(worker3))
+
             fig = plt.figure()
             title = "Comparison of Pattern Recognition Latency"
             plt.title(title)

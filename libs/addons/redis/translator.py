@@ -44,7 +44,6 @@ def frame_producer(my_redis, frame_id, ret, frame, save_path, channel, rc_latenc
         # Save image
         # print("###### save_path = ", save_path)
         t0_save2disk = time.time()
-        # save_path = "/home/ardi/devel/nctu/5g-dive/docker-yolov3/output_frames/hasil.jpg"
         cv2.imwrite(save_path, frame)
         t_save2disk = time.time() - t0_save2disk
         # print(".. image is saved in (%.3fs)" % (time.time() - t0_save2disk))
