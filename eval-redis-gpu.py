@@ -9,9 +9,10 @@ import argparse
 '''
 List of Latency Measurements:
     @`reading_video.py`: 
-        1. Reading stream image (CV Capture)            : frame-<droneID>-<frameID>
-        2. Saving image to (shared) disk                : f2disk-<droneID>-<frameID> 
-        3. Publish frame information to worker YOLOv3   : pub2frame-<droneID>-<frameID>  
+        1. Stream Start Time (CV Capture)               : stream-start-<droneID>-<frameID>
+        2. Reading stream frame (CV Read)               : frame-<droneID>-<frameID>
+        3. Saving image to (shared) disk                : f2disk-<droneID>-<frameID> 
+        4. Publish frame information to worker YOLOv3   : pub2frame-<droneID>-<frameID>  
 
     @`worker_yolov3.py`:
         1. Subscribing frame (from other container)     : sub2frame-<droneID>-<frameID>
@@ -66,14 +67,29 @@ class Plot:
         # self.last_frame_id = self.last_frame_id - 1
 
     # @`reading_video.py`
+    def get_stream_setup_latency(self):
+        key = "stream-setup-" + str(self.opt.drone_id)
+        value = redis_get(self.rc_latency, key)
+        # print("# Key, value = ", value)
+        if self.to_ms:
+            value = value * 1000
+        self.stream_setup = value
+
+    # @`reading_video.py`
     def get_read_stream_latency(self):
         self.read2stream = []
         # for idx in range (1, self.num_frames):
         for idx in range (1, (self.num_frames+1)):
             key = "frame-" + str(self.opt.drone_id) + "-" + str(idx)
             value = redis_get(self.rc_latency, key)
+
             if self.to_ms:
                 value = value * 1000
+
+                # Add end-to-end latency
+                if self.opt.enable_e2e:
+                    value += self.opt.avg_frame
+
             # print("# Key[`%s`], value = " % key, value)
             self.read2stream.append(value)
 
@@ -196,6 +212,7 @@ class Plot:
 
     def load_data(self):
         # @`reading_video.py`
+        self.get_stream_setup_latency()
         self.get_read_stream_latency()
         self.get_frame2disk_latency()
         self.get_pub2frame_latency()
@@ -296,11 +313,18 @@ class Plot:
         # print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')
         fig.savefig(self.latency_output + 'end2end_latency_per_frame.png', dpi=fig.dpi)
 
+    def calculate_e2e(self):
+        pass
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--to_ms', type=bool, default=True, help='Convert (from seconds) into miliseconds')
+    parser.add_argument('--timestamp', type=float, default=1580798146.107, help='AVG frame of the Drone (s)') # $ date +%s%3N
+    parser.add_argument('--avg_frame', type=float, default=2.2, help='Average frame latency from the Drone (ms)')
+    # parser.add_argument('--enable_e2e', type=bool, default=True, help='Enable End-to-end calculation') # `value` += `avg_frame`
+    parser.add_argument('--enable_e2e', type=bool, default=False, help='Enable End-to-end calculation') # `value` += `avg_frame`
+    parser.add_argument('--to_ms', type=bool, default=True, help='Convert value (from seconds) into miliseconds')
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
-    parser.add_argument("--output_graph", type=str, default="output_graph/", help="path to save graph")
+    parser.add_argument("--output_graph", type=str, default="output_graph/", help="path to save the graphs")
     opt = parser.parse_args()
     print(opt)
 

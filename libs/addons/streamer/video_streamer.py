@@ -63,7 +63,17 @@ class VideoStreamer:
         # while True:
         while self.is_running:
             try:
+                # t0_stream_setup = time.time()
                 self.cap = cv.VideoCapture(self.opt.source)
+                # t_stream_setup = time.time() - t0_stream_setup
+                # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
+                t_stream_setup_key = "stream-start-" + str(self.opt.drone_id)
+                redis_set(self.rc_latency, t_stream_setup_key, time.time())
+
+                # Latency:
+                # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
+                # redis_set(self.rc_latency, t_stream_setup_key, t_stream_setup)
+                # print('\nLatency [Stream Setup Time]: (%.5fs)' % (t_stream_setup))
 
                 if self.opt.enable_cv_out:
                     cv.namedWindow("Image", cv.WND_PROP_FULLSCREEN)
@@ -134,6 +144,7 @@ class VideoStreamer:
         # Save timestamp to start extracting video streaming.
         t_start_key = "start-" + str(self.opt.drone_id)
         redis_set(self.rc_latency, t_start_key, time.time())
+
         # while (self.cap.isOpened()):
         while (self.cap.isOpened()) and self.is_running:
             received_frame_id += 1
@@ -150,7 +161,7 @@ class VideoStreamer:
 
                 # Latency: capture each frame
                 t_frame = time.time() - t0_frame
-                print('\nLatency [Reading stream image] of frame-%d: (%.5fs)' % (received_frame_id, t_frame))
+                print('\nLatency [Reading stream frame] of frame-%d: (%.5fs)' % (received_frame_id, t_frame))
                 t_frame_key = "frame-" + str(self.opt.drone_id) + "-" + str(frame_id)
                 redis_set(self.rc_latency, t_frame_key, t_frame)
 
