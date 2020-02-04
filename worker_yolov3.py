@@ -11,11 +11,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
     # parser.add_argument('--mbbox_output', type=str, default="/home/ardi/devel/nctu/5g-dive/docker-yolov3/mbbox_frames/", help='Redis Subcriber channel')
-    parser.add_argument('--mbbox_output', type=str, default="mbbox_frames/", help='Redis Subcriber channel')
+    # parser.add_argument('--mbbox_output', type=str, default="mbbox_frames/", help='Redis Subcriber channel')
+    parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/", help='Redis Subcriber channel')
     parser.add_argument('--sub_channel', type=str, default="1", help='Redis Subcriber channel')
-    parser.add_argument('--frames_dir', type=str, default="output_frames", help='Frame by frame output')
+    # parser.add_argument('--frames_dir', type=str, default="output_frames", help='Frame by frame output')
+    parser.add_argument('--frames_dir', type=str, default="/media/ramdisk/output_frames", help='Frame by frame output')
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
-    parser.add_argument('--latency_output', type=str, default="saved_latency/tmp", help='Output location for latency results')
+    # parser.add_argument('--latency_output', type=str, default="saved_latency/tmp", help='Output location for latency results')
+    parser.add_argument('--latency_output', type=str, default="/media/ramdisk/saved_latency/tmp", help='Output location for latency results')
     # parser.add_argument('--maximize_latency', type=bool, default=True, help='Enable max latency (disabling some features)')
     parser.add_argument('--maximize_latency', type=bool, default=False, help='Enable max latency (disabling some features)')
     # parser.add_argument('--txt_format', type=str, default='default', help='Output Txt Format')
@@ -50,7 +53,8 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-3.flv', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-2.flv', help='source')  # input file/folder, 0 for webcam
     # parser.add_argument('--source', type=str, default='http://140.113.86.92:10000/drone-1.flv', help='source')  # input file/folder, 0 for webcam
-    parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
+    # parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
+    parser.add_argument('--output', type=str, default='/media/ramdisk/output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--img-size', type=int, default=832, help='inference size (pixels)')
     # parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')

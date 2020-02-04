@@ -120,7 +120,7 @@ class VideoStreamer:
             # None = DISABLED; 1=Ready; 0=Busy
             while self.__worker_status() == 0:
                 # print("\nWorker-%d is still processing other image, waiting (%ds) ..." % (self.worker_id, w))
-                print("\nWorker-%d is still processing other image, waiting ... " % self.worker_id)
+                # print("\nWorker-%d is still processing other image, waiting ... " % self.worker_id)
                 # time.sleep(0.005)
                 if not self.opt.disable_delay:
                     time.sleep(self.wait_time)
