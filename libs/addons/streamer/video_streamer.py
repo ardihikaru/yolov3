@@ -184,6 +184,7 @@ class VideoStreamer:
 
                             save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
                             mbbox_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+                            bbox_path = self.opt.normal_output + "/frame-%d.jpg" % frame_id
 
                             self.__load_balancing(frame_id, ret, frame, save_path)
 
@@ -194,12 +195,15 @@ class VideoStreamer:
                                     #     print("--------File exist")
                                     # else:
                                     #     print("--------File not exist")
-                                    while not os.path.isfile(mbbox_path):
+
+                                    # while not os.path.isfile(mbbox_path):
+                                    while not os.path.isfile(bbox_path):
                                         time.sleep(0.01)
                                         # time.sleep(0.5)
                                         continue
-
-                                    img = np.asarray(cv2.imread(mbbox_path))
+                                    time.sleep(0.05)
+                                    # img = np.asarray(cv2.imread(mbbox_path))
+                                    img = np.asarray(cv2.imread(bbox_path))
                                     cv.imshow("Image", img)
                                 else:
                                     cv.imshow("Image", frame)

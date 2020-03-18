@@ -39,6 +39,8 @@ if __name__ == "__main__":
     # To show the result in GUI (Copied from worker_yolov3.py configuration)
     parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/",
                         help='Folder location to store mbbox_frames')
+    parser.add_argument('--normal_output', type=str, default="/media/ramdisk/output/",
+                        help='Folder location to store original_frames')
 
     # parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--source", type=str, default="data/5g-dive/customTest_MIRC-Roadside-5s.mp4", help="source")
