@@ -34,7 +34,8 @@ class Mbbox:
                                                              len(self.detected_mbbox)))
         else:
             self.mbbox_img = self.img
-            save_txt(self.save_path, self.opt.txt_format)
+            if self.opt.output_txt:
+                save_txt(self.save_path, self.opt.txt_format)
             # print("Person + Flag objects NOT Found.")
             total_person = 0
             total_flag = 0

@@ -81,6 +81,11 @@ class VideoStreamer:
 
                 self.__start_streaming()
             except:
+                # if not self.opt.auto_restart:
+                #     print("\nUnable to communicate with the Streaming. Stopping the system. . .")
+                #     self.is_running = False
+                # else:
+                #     print("\nUnable to communicate with the Streaming. Restarting . . .")
                 print("\nUnable to communicate with the Streaming. Restarting . . .")
                 # time.sleep(1) # Delay 1 second before trying again
                 # The following frees up resources and closes all windows
@@ -184,6 +189,16 @@ class VideoStreamer:
 
                             if self.opt.enable_cv_out:
                                 if self.opt.enable_mbbox:
+                                    # time.sleep(0.2)
+                                    # if os.path.isfile(mbbox_path):
+                                    #     print("--------File exist")
+                                    # else:
+                                    #     print("--------File not exist")
+                                    while not os.path.isfile(mbbox_path):
+                                        time.sleep(0.01)
+                                        # time.sleep(0.5)
+                                        continue
+
                                     img = np.asarray(cv2.imread(mbbox_path))
                                     cv.imshow("Image", img)
                                 else:
@@ -197,8 +212,14 @@ class VideoStreamer:
                     n = 0
                 # time.sleep(0.01)  # wait time
 
-            except:
-                print("No more frame to show.")
+            except Exception as e:
+                print(" ---- e:", e)
+                if not self.opt.auto_restart:
+                    print("\nStopping the system. . .")
+                    time.sleep(7)
+                    self.is_running = False
+                else:
+                    print("No more frame to show.")
                 break
 
             if cv.waitKey(10) & 0xFF == ord('q'):

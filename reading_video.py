@@ -4,6 +4,7 @@ from libs.addons.streamer.video_streamer import VideoStreamer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--auto_restart', type=bool, default=False, help='Auto Restart reader video')
     parser.add_argument('--disable_delay', type=bool, default=True, help='Enable/disable delay')
 
     # parser.add_argument('--start_frame_id', type=int, default=601, help='Start frame ID')
@@ -28,9 +29,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--enable_mbbox", type=bool, default=True, help="Enable/disable Output MB-Box-based video streaming")
 
-    # parser.add_argument("--delay", type=int, default=4, help="path to dataset")
-    parser.add_argument("--delay", type=int, default=7, help="path to dataset")
+    parser.add_argument("--delay", type=int, default=4, help="path to dataset")
+    # parser.add_argument("--delay", type=int, default=7, help="path to dataset")
     # parser.add_argument("--delay", type=int, default=1, help="path to dataset")
+    # parser.add_argument("--delay", type=int, default=2, help="path to dataset")
 
     parser.add_argument("--output_folder", type=str, default="/media/ramdisk/output_frames/", help="path to save raw images")
 

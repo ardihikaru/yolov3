@@ -114,7 +114,8 @@ class IntersectionFinder:
                 if self.plot_mbbbox:
                     if not self.opt.maximize_latency:
                         plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                        save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                        if self.opt.output_txt:
+                            save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
             except:
                 pass
 
@@ -154,11 +155,13 @@ class IntersectionFinder:
             if self.plot_mbbbox:
                 if not self.opt.maximize_latency:
                     plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                    save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                    if self.opt.output_txt:
+                        save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
 
         else:
             if not self.opt.maximize_latency:
-                save_txt(self.save_path, self.opt.txt_format)
+                if self.opt.output_txt:
+                    save_txt(self.save_path, self.opt.txt_format)
 
     '''
     1. Each PERSON: W and H enlarged based on `w_ratio` and `h_ratio`
@@ -192,8 +195,16 @@ class IntersectionFinder:
         # save MB-Box illustration
         # print(" >>>>> self.save_path = ", self.save_path)
         # cv2.imwrite(self.save_path+, self.img_mbbox)
-        cv2.imwrite(self.save_path.replace('.png', '')+"-mbbox.png", self.img_mbbox)
-        cv2.imwrite(self.save_path.replace('.png', '')+"-enlarge.png", self.img_enlarge)
+        save_path_mbbox_img = (self.save_path.replace('.jpg', '')+"-mbbox.png").replace('output', 'output/mbbox')
+        save_path_enlarged_img = (self.save_path.replace('.jpg', '')+"-enlarge.png").replace('output', 'output/enlarge')
+
+        # print(" >>>>> save_path_enlarged_img = ", save_path_enlarged_img)
+        # print(" >>>>> save_path_mbbox_img = ", save_path_mbbox_img)
+
+        # cv2.imwrite(self.save_path+"/enlarge".replace('.png', '')+"-mbbox.png", self.img_mbbox)
+        # cv2.imwrite(self.save_path+"/mbbox".replace('.png', '')+"-enlarge.png", self.img_enlarge)
+        cv2.imwrite(save_path_mbbox_img, self.img_mbbox)
+        cv2.imwrite(save_path_enlarged_img, self.img_enlarge)
 
     '''
     1. Each FLAG: W and H enlarged based on `w_ratio` and `h_ratio`

@@ -34,6 +34,8 @@ class YOLOv3:
         if os.path.exists(self.out):
             shutil.rmtree(self.out)  # delete output folder
         os.makedirs(self.out)  # make new output folder
+        os.makedirs(self.out+"/enlarge")  # make enlarge folder
+        os.makedirs(self.out+"/mbbox")  # make mbbox folder
 
         # Empty folders
         mbbox_folder = opt.mbbox_output + str(opt.drone_id)
@@ -47,7 +49,7 @@ class YOLOv3:
         self.detected_mbbox = 0
 
         # Sef Default Detection Algorithms
-        self.default_algorithm = opt.default_detection
+        # self.default_algorithm = opt.default_detection
         self.mbbox_algorithm = opt.mbbox_detection
 
         # Set W and H enlarging ratio
@@ -108,7 +110,10 @@ class YOLOv3:
         self.__half_precision()
         self.__set_data_loader()
         self.__get_names_colors()
-        self.__print_save_txt_img()
+
+        if self.opt.output_txt:
+            self.__print_save_txt_img()
+
         self.__iterate_frames() # Perform detection in each frame here
         self.__save_latency_to_csv()
 
@@ -462,7 +467,7 @@ class YOLOv3:
 
                     ts_default = time.time()
                     if not self.opt.maximize_latency:
-                        if self.default_algorithm:
+                        if self.opt.default_detection:
                             self.__default_detection(det, im0)
                     t_default = time.time() - ts_default
                     self.time_default += t_default
@@ -503,8 +508,6 @@ class YOLOv3:
                     redis_set(self.rc_latency, t_e2e_key, t_end2end)
                     print('\nLatency [This End2end] of frame-%s: (%.5fs)' % (str(this_frame_id), t_end2end))
 
-
-
                     # Stream results
                     # if self.view_img:
                     #     cv2.imshow(p, im0)
@@ -516,7 +519,7 @@ class YOLOv3:
 
 
     def __default_detection(self, det, im0):
-        if self.default_algorithm:
+        if self.opt.default_detection:
             original_img = im0.copy()
 
             # Print results
@@ -530,20 +533,10 @@ class YOLOv3:
                 idx_detected += 1
                 self.save_txt = True  # Ardi: manually added
 
-                # # Un-comment this to enable this feature
-                # if self.save_txt:  # Write to file
-                #     with open(self.save_path.replace(".png", "") + '.txt', 'a') as file:
-                #         if self.opt.txt_format == "default":
-                #             file.write(('%g ' * 6 + '\n') % (*xyxy, cls, conf))
-                #         elif self.opt.txt_format == "cartucho":
-                #             str = self.names[int(cls)] + " "
-                #             str += ('%g ' * 5 + '\n') % (conf, *xyxy)
-                #             file.write(str)
-                #         else:
-                #             pass
-
+                # Save cropped files
                 self.__save_cropped_img(xyxy, original_img, idx_detected)
 
+                # print(">>>>>>>>>>>>> PLOT BBOX aja self.save_img = ", self.save_img)
                 if self.save_img or self.view_img:  # Add bbox to image
                     label = '%s %.2f' % (self.names[int(cls)], conf)
                     plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
