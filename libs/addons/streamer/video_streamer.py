@@ -178,10 +178,16 @@ class VideoStreamer:
                                 break
 
                             save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+                            mbbox_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+
                             self.__load_balancing(frame_id, ret, frame, save_path)
 
                             if self.opt.enable_cv_out:
-                                cv.imshow("Image", frame)
+                                if self.opt.enable_mbbox:
+                                    img = np.asarray(cv2.imread(mbbox_path))
+                                    cv.imshow("Image", img)
+                                else:
+                                    cv.imshow("Image", frame)
 
                     else:
                         print("IMAGE is INVALID.")

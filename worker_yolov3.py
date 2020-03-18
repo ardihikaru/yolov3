@@ -10,8 +10,9 @@ from libs.algorithms.yolo_v3 import YOLOv3
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
-    parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/", help='Redis Subcriber channel')
-    parser.add_argument('--sub_channel', type=str, default="1", help='Redis Subcriber channel')
+    parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/",
+                        help='Folder location to store mbbox_frames')
+    parser.add_argument('--sub_channel', type=str, default="1", help='Redis Subscriber channel')
     parser.add_argument('--frames_dir', type=str, default="/media/ramdisk/output_frames", help='Frame by frame output')
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
     parser.add_argument('--latency_output', type=str, default="/media/ramdisk/saved_latency/tmp", help='Output location for latency results')
