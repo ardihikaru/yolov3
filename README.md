@@ -28,24 +28,34 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
 // TBD
 
 # 5g-dive implementation
-## Requirements
+### Requirements
 1. Ubuntu 16.06
 2. Python Environment:
     - Conda Environment: 
-    `conda create -n docker-yolov3 python=3.7 -c conda-forge`
+    `$ conda create -n 5gdive-yolov3 python=3.7 -c conda-forge`
+    - Cloning conda env:
+    `$ conda create --name 5gdive-yolov3 --file req_conda.txt`
     - OR, Python 3.7 or later with all of the 
         `pip install -U -r requirements.txt` packages including:
         - `torch >= 1.3`
         - `opencv-python`
         - `Pillow`
     - **WARNING**: If you get Module not found for `Cython`, please do:
-        `pip install Cython`
-## Clone and install requirements
+        `$ pip install Cython`
+### Clone and install requirements (If Not using Conda Env)
     $ git clone git@github.com:ardihikaru/yolov3.git
     $ cd yolov3
     $ pip install -r requirements.txt
+### Usage
+1. Activate environment (for Conda Env): `$ conda activate 5gdive-yolov3`
+2. Run YOLOv3 Workers, as the for example here, I setup **3 workers** by default (file `worker_yolov3.py`)
+- `$ python worker_yolov3.py --sub_channel 1`
+- `$ python worker_yolov3.py --sub_channel 2`
+- `$ python worker_yolov3.py --sub_channel 3`
+3. Run video streaming reader: `$ python reading_video.py`
+- By default, I set `3 number of workers`. Please modify them accordingly.
 
-All dependencies are included in the associated docker images. Docker requirements are: 
+##### All dependencies are included in the associated docker images. Docker requirements are: 
 - `nvidia-docker`
 - Nvidia Driver Version >= 440.44
 

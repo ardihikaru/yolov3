@@ -16,6 +16,8 @@ from tqdm import tqdm
 
 from utils.utils import xyxy2xywh, xywh2xyxy
 
+import torchvision.transforms as transforms
+
 help_url = 'https://github.com/ultralytics/yolov3/wiki/Train-Custom-Data'
 img_formats = ['.bmp', '.jpg', '.jpeg', '.png', '.tif', '.dng']
 vid_formats = ['.mov', '.avi', '.mp4']
@@ -24,6 +26,23 @@ vid_formats = ['.mov', '.avi', '.mp4']
 for orientation in ExifTags.TAGS.keys():
     if ExifTags.TAGS[orientation] == 'Orientation':
         break
+
+def pad_to_square(img, pad_value):
+    c, h, w = img.shape
+    dim_diff = np.abs(h - w)
+    # (upper / left) padding and (lower / right) padding
+    pad1, pad2 = dim_diff // 2, dim_diff - dim_diff // 2
+    # Determine padding
+    pad = (0, 0, pad1, pad2) if h <= w else (pad1, pad2, 0, 0)
+    # Add padding
+    img = F.pad(img, pad, "constant", value=pad_value)
+
+    return img, pad
+
+
+def resize(image, size):
+    image = F.interpolate(image.unsqueeze(0), size=size, mode="nearest").squeeze(0)
+    return image
 
 
 def exif_size(img):
@@ -185,6 +204,24 @@ class LoadWebcam:  # for inference
     def __len__(self):
         return 0
 
+class ImageFolder(Dataset):
+    def __init__(self, folder_path, img_size=416):
+        self.files = sorted(glob.glob("%s/*.*" % folder_path))
+        self.img_size = img_size
+
+    def __getitem__(self, index):
+        img_path = self.files[index % len(self.files)]
+        # Extract image as PyTorch tensor
+        img = transforms.ToTensor()(Image.open(img_path))
+        # Pad to square resolution
+        img, _ = pad_to_square(img, 0)
+        # Resize
+        img = resize(img, self.img_size)
+
+        return img_path, img
+
+    def __len__(self):
+        return len(self.files)
 
 class LoadStreams:  # multiple IP or RTSP cameras
     def __init__(self, sources='streams.txt', img_size=416, half=False):
@@ -192,10 +229,13 @@ class LoadStreams:  # multiple IP or RTSP cameras
         self.img_size = img_size
         self.half = half  # half precision fp16 images
 
+        self.w = 1366
+        self.h = 768
+
         if os.path.isfile(sources):
             with open(sources, 'r') as f:
                 sources = [x.strip() for x in f.read().splitlines() if len(x.strip())]
-        else:
+        else: # stream HTTP here
             sources = [sources]
 
         n = len(sources)
@@ -206,8 +246,17 @@ class LoadStreams:  # multiple IP or RTSP cameras
             print('%g/%g: %s... ' % (i + 1, n, s), end='')
             cap = cv2.VideoCapture(0 if s == '0' else s)
             assert cap.isOpened(), 'Failed to open %s' % s
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            # Default
+            # w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            # h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            # Modified
+            w = 1366
+            h = 768
+            # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+            # cv2.resizeWindow("Image", w, h)  # Enter your size
+
             fps = cap.get(cv2.CAP_PROP_FPS) % 100
             _, self.imgs[i] = cap.read()  # guarantee first frame
             thread = Thread(target=self.update, args=([i, cap]), daemon=True)
@@ -224,12 +273,43 @@ class LoadStreams:  # multiple IP or RTSP cameras
     def update(self, index, cap):
         # Read next stream frame in a daemon thread
         n = 0
+
+        # Fix Window
+        # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+        # cv2.resizeWindow("Image", self.w, self.h)  # Enter your size
+
         while cap.isOpened():
             n += 1
+            # print("\n >>> index=%d reading frame = %d" % (index, n))
             # _, self.imgs[index] = cap.read()
             cap.grab()
             if n == 4:  # read every 4th frame
+                # print("\n >>> In this frame=%d, reading the img ..." % n)
                 _, self.imgs[index] = cap.retrieve()
+                my_img = list(cap.retrieve())[1]
+                # print(my_img)
+
+                # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+                # cv2.resizeWindow("Image", 1366, 768)  # Enter your size
+                # cv2.imshow("Image", my_img)
+                # cv2.waitKey(20000)
+
+                # import json
+                # my_json_string = json.dumps(my_img)
+                # my_json_string = json.dumps(my_img)
+                # with open("/home/ardi/devel/nctu/5g-dive/docker-yolov3/output_frames/output.json", 'w') as file:
+                #     file.write(my_json_string)
+                #     print("writing JSON ok.")
+
+                # import cv2 as cv
+                # cv.namedWindow("Image", cv.WND_PROP_FULLSCREEN)
+                # cv.resizeWindow("Image", 1366, 768)  # Enter your size
+
+
+
+                # print("total len = ", len(my_img))
+                # print("type = ", type(my_img))
+                # print("\n ### Total img collected here = %d" % len(self.imgs))
                 n = 0
             time.sleep(0.01)  # wait time
 
@@ -239,6 +319,11 @@ class LoadStreams:  # multiple IP or RTSP cameras
 
     def __next__(self):
         self.count += 1
+
+        # Fix Window
+        # cv2.namedWindow("Image", cv2.WND_PROP_FULLSCREEN)
+        # cv2.resizeWindow("Image", self.w, self.h)  # Enter your size
+
         img0 = self.imgs.copy()
         if cv2.waitKey(1) == ord('q'):  # q to quit
             cv2.destroyAllWindows()
@@ -606,6 +691,7 @@ def letterbox(img, new_shape=(416, 416), color=(128, 128, 128),
               auto=True, scaleFill=False, scaleup=True, interp=cv2.INTER_AREA):
     # Resize image to a 32-pixel-multiple rectangle https://github.com/ultralytics/yolov3/issues/232
     shape = img.shape[:2]  # current shape [height, width]
+
     if isinstance(new_shape, int):
         new_shape = (new_shape, new_shape)
 

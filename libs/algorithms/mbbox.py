@@ -3,7 +3,9 @@ from libs.algorithms.intersection_finder import IntersectionFinder
 from libs.commons.opencv_helpers import save_txt
 
 class Mbbox:
-    def __init__(self, opt, save_path, det, img, names, w_ratio, h_ratio):
+    def __init__(self, cam, source_img, opt, save_path, det, img, names, w_ratio, h_ratio):
+        self.cam = cam
+        self.source_img = source_img
         self.opt = opt
         self.img = img
         self.save_path = save_path
@@ -13,6 +15,9 @@ class Mbbox:
         self.names = names
         self.w_ratio = w_ratio
         self.h_ratio = h_ratio
+        self.detected_mbbox = []
+        self.mbbox_img = None
+        self.rgb_mbbox = [198, 50, 13]
 
     def run(self):
         self.__extract()
@@ -21,11 +26,14 @@ class Mbbox:
             self.intersection = IntersectionFinder(self.opt, self.names, self.save_path, self.img, self.det,
                                                    self.class_det, self.width, self.height, self.w_ratio, self.h_ratio)
             self.intersection.find()
-            detected_mbbox = self.intersection.get_mbbox_imgs()
+            self.detected_mbbox = self.intersection.get_mbbox_imgs()
+            self.mbbox_img = self.intersection.get_img_with_mbbox()
+            self.rgb_mbbox = self.intersection.get_rgb_mbbox()
             # print("Person-W-Flag object: %d founds." % len(detected_mbbox))
             print("Person=%d; Flag=%d; Person-W-Flag=%d;" % (len(self.class_det["Person"]), len(self.class_det["Flag"]),
-                                                             len(detected_mbbox)))
+                                                             len(self.detected_mbbox)))
         else:
+            self.mbbox_img = self.img
             save_txt(self.save_path, self.opt.txt_format)
             # print("Person + Flag objects NOT Found.")
             total_person = 0
@@ -35,6 +43,15 @@ class Mbbox:
             if "Flag" in self.class_det:
                 total_flag = len(self.class_det["Flag"])
             print("Person=%d; Flag=%d; Person-W-Flag=0;" % (total_person, total_flag))
+
+    def get_mbbox_img(self):
+        return self.mbbox_img
+
+    def get_detected_mbbox(self):
+        return self.detected_mbbox
+
+    def get_rgb_mbbox(self):
+        return self.rgb_mbbox
 
     '''
     FYI: Class label in this case (check in file `data/obj.names`):
