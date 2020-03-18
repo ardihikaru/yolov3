@@ -1,3 +1,39 @@
+## 0.4.0 (三月 18, 2020)
+  - Merge branch 'feature/streaming' into develop
+  - last execution before going to Madrid / submit paper EuCNC
+  - added sample generated dataset
+  - save all output into *.csv files
+  - bug fixed
+  - added latency comparison
+  - added end-to-end transmission latency: Disabled (default) [TBD]
+  - added gpu latency evaluation
+  - modified graph information
+  - modified graph information
+  - bug fixed
+  - bug fixed
+  - bug fixed
+  - default arguments
+  - bug fixed
+  - add more argument
+  - disable wait time
+  - disable delay
+  - added force stop read video streaming
+  - added total end-to-end latency value
+  - ignore frame one
+  - added latency information: communicatio and processing latency
+  - upgrade: worker YOLOv3 synchronously save the output images
+  - Bug fixed: worker yolo was error
+  - modified arguments
+  - updated README file
+  - updated README file
+  - updated README file
+  - finished and tested docker with parallel processing
+  - added pubsub video streamer+publish and subscriber each published frame
+  - added pub-sub flow
+  - added frame with detected object, dumped into `output_frames` folder
+  - testing Video Streaming
+  - Merge branch 'release-0.3' into develop
+
 ## 0.3.0 (一月 30, 2020)
   - fixed minor error
   - added gpu analysis
