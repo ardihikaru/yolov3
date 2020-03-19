@@ -112,8 +112,8 @@ class YOLOv3:
         self.__set_data_loader()
         self.__get_names_colors()
 
-        if self.opt.output_txt:
-            self.__print_save_txt_img()
+        # if self.opt.output_txt:
+        #     self.__print_save_txt_img()
 
         self.__iterate_frames() # Perform detection in each frame here
         self.__save_latency_to_csv()

@@ -31,7 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--save_enlarged_img', type=bool, default=False, help='Enabling/Disabling Save enlarged img')
     # parser.add_argument('--mbbox_detection', type=str, default=False, help='Enabling/Disabling Merge Box Bounding Algorithm')
 
-    parser.add_argument('--output_txt', type=str, default=False, help='output txt information')  # output folder
+    parser.add_argument('--output_txt', type=str, default=True, help='output txt information')  # output folder
+    # parser.add_argument('--output_txt', type=str, default=False, help='output txt information')  # output folder
     # parser.add_argument('--crop_img', type=str, default=True, help='Enabling/Disabling Crop detected image')
     parser.add_argument('--crop_img', type=str, default=False, help='Enabling/Disabling Crop detected image')
     parser.add_argument('--cfg', type=str, default='yolo-obj-v5.cfg', help='*.cfg path')
