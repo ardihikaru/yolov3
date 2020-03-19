@@ -7,14 +7,14 @@ if __name__ == "__main__":
     parser.add_argument('--auto_restart', type=bool, default=False, help='Auto Restart reader video')
     parser.add_argument('--disable_delay', type=bool, default=True, help='Enable/disable delay')
 
-    # parser.add_argument('--start_frame_id', type=int, default=601, help='Start frame ID')
-    parser.add_argument('--start_frame_id', type=int, default=1, help='Start frame ID')
+    parser.add_argument('--start_frame_id', type=int, default=601, help='Start frame ID')
+    # parser.add_argument('--start_frame_id', type=int, default=1, help='Start frame ID')
     # parser.add_argument('--start_frame_id', type=int, default=11, help='Start frame ID')
 
     # parser.add_argument('--max_frames', type=int, default=18, help='Max Frames')
     # parser.add_argument('--max_frames', type=int, default=24, help='Max Frames')
-    parser.add_argument('--max_frames', type=int, default=60, help='Max Frames')
-    # parser.add_argument('--max_frames', type=int, default=300, help='Max Frames')
+    # parser.add_argument('--max_frames', type=int, default=60, help='Max Frames')
+    parser.add_argument('--max_frames', type=int, default=300, help='Max Frames')
     # parser.add_argument('--max_frames', type=int, default=6, help='Max Frames')
 
     # parser.add_argument('--drone_id', type=int, default=3, help='Drone ID')
@@ -44,11 +44,11 @@ if __name__ == "__main__":
 
     # parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     # parser.add_argument("--source", type=str, default="data/5g-dive/sample-1-frame", help="source")
-    parser.add_argument("--source", type=str, default="data/5g-dive/customTest_MIRC-Roadside-5s.mp4", help="source")
+    # parser.add_argument("--source", type=str, default="data/5g-dive/videos/customTest_MIRC-Roadside-5s.mp4", help="source")
     # parser.add_argument("--source", type=str, default="http://140.113.86.92:10000/drone-3.flv", help="source")
     # parser.add_argument("--source", type=str, default="http://140.113.86.92:10000/drone-2.flv", help="source")
     # parser.add_argument("--source", type=str, default="http://140.113.86.92:10000/drone-1.flv", help="source")
-    # parser.add_argument("--source", type=str, default="http://192.168.0.50:10000/drone-1.flv", help="source")
+    parser.add_argument("--source", type=str, default="http://192.168.0.50:10000/drone-1.flv", help="source")
     opt = parser.parse_args()
     print(opt)
 
