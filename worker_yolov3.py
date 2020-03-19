@@ -25,6 +25,11 @@ if __name__ == '__main__':
     parser.add_argument('--w_ratio', type=str, default=0.25, help='Width Ratio (for MB-Box Algorithm)')
     parser.add_argument('--h_ratio', type=float, default=0.1, help='Height Ratio (for MB-Box Algorithm)')
 
+    parser.add_argument('--modv1', type=bool, default=True,
+                        help='Enabling/Disabling MOD Algorithm v1')
+    parser.add_argument('--modv2', type=bool, default=True,
+                        help='Enabling/Disabling MOD Algorithm v2')
+
     # parser.add_argument('--default_detection', type=str, default=False, help='Enabling/Disabling Default Box Bounding Algorithm')
     parser.add_argument('--default_detection', type=bool, default=True, help='Enabling/Disabling Default Box Bounding Algorithm')
     parser.add_argument('--mbbox_detection', type=bool, default=True, help='Enabling/Disabling Merge Box Bounding Algorithm')

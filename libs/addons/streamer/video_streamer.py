@@ -7,6 +7,8 @@ from libs.settings import common_settings
 from utils.utils import *
 from models import *  # set ONNX_EXPORT in models.py
 
+from utils.datasets import *
+
 class VideoStreamer:
     def __init__(self, opt):
         self.opt = opt
@@ -59,39 +61,161 @@ class VideoStreamer:
         )
 
     def run(self):
-        print("\nReading video:")
-        # while True:
-        while self.is_running:
+        if self.opt.source_type == "folder":
+            print("\nReading folder:")
+            t_stream_setup_key = "stream-start-" + str(self.opt.drone_id)
+            redis_set(self.rc_latency, t_stream_setup_key, time.time())
+            self.detect_from_folder()
+
+        else:
+            print("\nReading video:")
+            # while True:
+            while self.is_running:
+                try:
+                    # t0_stream_setup = time.time()
+                    self.cap = cv.VideoCapture(self.opt.source)
+                    # t_stream_setup = time.time() - t0_stream_setup
+                    # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
+                    t_stream_setup_key = "stream-start-" + str(self.opt.drone_id)
+                    redis_set(self.rc_latency, t_stream_setup_key, time.time())
+
+                    # Latency:
+                    # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
+                    # redis_set(self.rc_latency, t_stream_setup_key, t_stream_setup)
+                    # print('\nLatency [Stream Setup Time]: (%.5fs)' % (t_stream_setup))
+
+                    if self.opt.enable_cv_out:
+                        cv.namedWindow("Image", cv.WND_PROP_FULLSCREEN)
+                        cv.resizeWindow("Image", 1366, 768)  # Enter your size
+
+                    self.__start_streaming()
+                except:
+                    # if not self.opt.auto_restart:
+                    #     print("\nUnable to communicate with the Streaming. Stopping the system. . .")
+                    #     self.is_running = False
+                    # else:
+                    #     print("\nUnable to communicate with the Streaming. Restarting . . .")
+                    print("\nUnable to communicate with the Streaming. Restarting . . .")
+                    # time.sleep(1) # Delay 1 second before trying again
+                    # The following frees up resources and closes all windows
+                    self.cap.release()
+                    if self.opt.enable_cv_out:
+                        cv.destroyAllWindows()
+
+    def detect_from_folder(self):
+        n = 0
+        frame_id = 0
+        received_frame_id = 0
+
+        # Set Dataloader
+        vid_path, vid_writer = None, None
+        save_img = True
+        dataset = LoadImages(self.opt.source, img_size=self.opt.img_size, half=self.opt.half)
+
+        # Save timestamp to start extracting video streaming.
+        t_start_key = "start-" + str(self.opt.drone_id)
+        redis_set(self.rc_latency, t_start_key, time.time())
+
+        # urutkan index
+        dataset_idx = []
+        for i in range(57):
+            dataset_idx.append([])
+
+        i = 0
+        for path, img, im0s, vid_cap in dataset:
+            real_frame_idx = int((path.replace("data/5g-dive/57-frames/out", "")).replace(".png", ""))
+            real_idx = real_frame_idx - 1
+            print(" >>> Re-arranging real_idx: ", real_idx)
+            dataset_idx[real_idx] = [path, img, im0s, vid_cap]
+            i += 1
+
+        # print("dataset_idx:", type(dataset))
+        # print("\n\ndataset_idx:", len(dataset_idx))
+        # print("dataset_idx[0]:", dataset_idx[0])
+
+        # for path, img, im0s, vid_cap in dataset:
+        for i in range(len(dataset_idx)):
+            received_frame_id, path, img, im0s, vid_cap = (i+1), dataset_idx[i][0], dataset_idx[i][1], \
+                                                          dataset_idx[i][2], dataset_idx[i][3]
+            # received_frame_id += 1
+            # received_frame_id = int((path.replace("data/5g-dive/57-frames/out", "")).replace(".png", ""))
+
+            t_sframe_key = "start-fi-" + str(self.opt.drone_id)  # to calculate end2end latency each frame.
+            redis_set(self.rc_latency, t_sframe_key, time.time())
+
+            n += 1
+
+            t0_frame = time.time()
+            # ret = a boolean return value from getting the frame, frame = the current frame being projected in the video
             try:
-                # t0_stream_setup = time.time()
-                self.cap = cv.VideoCapture(self.opt.source)
-                # t_stream_setup = time.time() - t0_stream_setup
-                # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
-                t_stream_setup_key = "stream-start-" + str(self.opt.drone_id)
-                redis_set(self.rc_latency, t_stream_setup_key, time.time())
+                # ret, frame = self.cap.read()
+                # ret, frame = True, img
+                ret, frame = True, im0s
 
-                # Latency:
-                # t_stream_setup_key = "stream-setup-" + str(self.opt.drone_id)
-                # redis_set(self.rc_latency, t_stream_setup_key, t_stream_setup)
-                # print('\nLatency [Stream Setup Time]: (%.5fs)' % (t_stream_setup))
+                # Latency: capture each frame
+                t_frame = time.time() - t0_frame
+                print('\nLatency [Reading stream frame] of frame-%d: (%.5fs)' % (received_frame_id, t_frame))
+                t_frame_key = "frame-" + str(self.opt.drone_id) + "-" + str(frame_id)
+                redis_set(self.rc_latency, t_frame_key, t_frame)
 
-                if self.opt.enable_cv_out:
-                    cv.namedWindow("Image", cv.WND_PROP_FULLSCREEN)
-                    cv.resizeWindow("Image", 1366, 768)  # Enter your size
+                if n == self.opt.delay:  # read every n-th frame
 
-                self.__start_streaming()
-            except:
-                # if not self.opt.auto_restart:
-                #     print("\nUnable to communicate with the Streaming. Stopping the system. . .")
-                #     self.is_running = False
-                # else:
-                #     print("\nUnable to communicate with the Streaming. Restarting . . .")
-                print("\nUnable to communicate with the Streaming. Restarting . . .")
-                # time.sleep(1) # Delay 1 second before trying again
-                # The following frees up resources and closes all windows
-                self.cap.release()
-                if self.opt.enable_cv_out:
-                    cv.destroyAllWindows()
+                    if ret:
+                        # Start capturing here
+                        if received_frame_id >= self.start_frame_id:
+                            frame_id += 1
+                            # Force stop after n frames
+                            # if frame_id > int(self.max_frames):
+                            if frame_id == (int(self.max_frames) + 1):
+                                self.is_running = False
+                                break
+
+                            save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+                            mbbox_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
+                            bbox_path = self.opt.normal_output + "/frame-%d.jpg" % frame_id
+
+                            self.__load_balancing(frame_id, ret, frame, save_path)
+
+                            if self.opt.enable_cv_out:
+                                if self.opt.enable_mbbox:
+                                    # time.sleep(0.2)
+                                    # if os.path.isfile(mbbox_path):
+                                    #     print("--------File exist")
+                                    # else:
+                                    #     print("--------File not exist")
+
+                                    # while not os.path.isfile(mbbox_path):
+                                    while not os.path.isfile(bbox_path):
+                                        time.sleep(0.01)
+                                        # time.sleep(0.5)
+                                        continue
+                                    time.sleep(0.05)
+                                    # img = np.asarray(cv2.imread(mbbox_path))
+                                    img = np.asarray(cv2.imread(bbox_path))
+                                    cv.imshow("Image", img)
+                                else:
+                                    cv.imshow("Image", frame)
+
+                    else:
+                        print("IMAGE is INVALID.")
+                        print("I guess there is no more frame to show.")
+                        break
+
+                    n = 0
+                # time.sleep(0.01)  # wait time
+
+            except Exception as e:
+                print(" ---- e:", e)
+                if not self.opt.auto_restart:
+                    print("\nStopping the system. . .")
+                    time.sleep(7)
+                    self.is_running = False
+                else:
+                    print("No more frame to show.")
+                break
+
+            if cv.waitKey(10) & 0xFF == ord('q'):
+                break
 
     def __reset_worker(self):
         if self.worker_id == self.opt.total_workers:
