@@ -568,7 +568,7 @@ class YOLOv3:
                     for i in range(len(self.detected_mbbox)):
                         mbbox_xyxy = self.detected_mbbox[i]
                         if self.opt.output_txt:
-                            save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                            save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy, 'w+')
                 t_mod_v1 = time.time() - ts_mod_v1
                 # print('\n~Proc. Latency [MODv1] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v1))
 

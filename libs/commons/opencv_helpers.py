@@ -85,10 +85,11 @@ def get_xyxy_distance_manhattan(xyxy_1, xyxy_2):
     return dist
 
 
-def save_txt(save_path, txt_format, mbbox_xyxy=None):
+def save_txt(save_path, txt_format, mbbox_xyxy=None, w_type='a'):
     # save into .txt file of MB-Box
     txt_path = save_path.replace(".png", '')
-    with open(txt_path + '.txt', 'a') as file:
+    # with open(txt_path + '.txt', 'a') as file:
+    with open(txt_path + '.txt', w_type) as file:
         if mbbox_xyxy is None:
             file.write("")
         else:
