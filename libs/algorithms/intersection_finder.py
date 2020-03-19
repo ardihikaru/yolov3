@@ -155,13 +155,13 @@ class IntersectionFinder:
             if self.plot_mbbbox:
                 if not self.opt.maximize_latency:
                     plot_one_box(mbbox_xyxy, self.img_mbbox, label="Person-W-Flag", color=self.rgb["MMBox"])
-                    if self.opt.output_txt:
-                        save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                    # if self.opt.output_txt:
+                    #     save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
 
-        else:
-            if not self.opt.maximize_latency:
-                if self.opt.output_txt:
-                    save_txt(self.save_path, self.opt.txt_format)
+        # else:
+        #     if not self.opt.maximize_latency:
+        #         if self.opt.output_txt:
+        #             save_txt(self.save_path, self.opt.txt_format)
 
     '''
     1. Each PERSON: W and H enlarged based on `w_ratio` and `h_ratio`
