@@ -52,7 +52,8 @@ class MODv2(RegionCluster):
             self.pair_selection()
         else:
             if self.opt.output_txt:
-                save_txt(self.save_path, self.opt.txt_format, "")
+                save_txt(self.save_path, self.opt.txt_format)
+                # save_txt(self.save_path, self.opt.txt_format, "")
         # print("########### isi class", self.class_det)
 
     def find_pair_candidates(self):
@@ -73,7 +74,7 @@ class MODv2(RegionCluster):
     def pair_selection(self):
         for flag_idx, pair_data in self.flag_pair_candidates.items():
             # print("$$$$$$ pairDATA:", pair_data["dist"], pair_data["id"])
-            if len(pair_data["id"])> 0:
+            if len(pair_data["id"]) > 0:
                 selected_idx = pair_data["dist"].index(min(pair_data["dist"]))
                 selected_person_idx = pair_data["id"][selected_idx]
                 # print("%%%%%%% flag_idx - Hasil IDX, PERSON_IDX  :", flag_idx, selected_idx, selected_person_idx)
@@ -91,8 +92,8 @@ class MODv2(RegionCluster):
 
                 self.detected_mbbox.append(mbbox_xyxy)
                 plot_one_box(mbbox_xyxy, self.mbbox_img, label="Person-W-Flag", color=self.rgb_mbbox)
-                if self.opt.output_txt:
-                    save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                # if self.opt.output_txt:
+                #     save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
 
     def __is_eligible(self):
         if "Person" not in self.class_det or "Flag" not in self.class_det:
