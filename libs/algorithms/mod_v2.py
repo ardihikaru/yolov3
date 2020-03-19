@@ -3,7 +3,7 @@ import numpy as np
 from libs.commons.opencv_helpers import save_txt
 import time
 from libs.algorithms.region_cluster import RegionCluster
-from libs.commons.util import get_centroid_xy, find_point
+from libs.commons.util import find_point
 from libs.commons.opencv_helpers import get_det_xyxy, np_xyxy2xywh, get_mbbox, np_xyxy2centroid, get_xyxy_distance_manhattan, get_xyxy_distance, save_txt
 from utils.utils import plot_one_box
 
@@ -37,18 +37,18 @@ class MODv2(RegionCluster):
         ts_extract = time.time()
         self.__extract()
         t_extract = time.time() - ts_extract
-        print('\n**** Proc. Latency [extract img DATA]: (%.5fs)' % t_extract)
+        # print('\n**** Proc. Latency [extract img DATA]: (%.5fs)' % t_extract)
 
         if self.__is_eligible():
             ts_map2cluster = time.time()
             self.map_to_clusters()
             t_map2cluster = time.time() - ts_map2cluster
-            print('\n**** Proc. Latency [Map to Clusters]: (%.5fs)' % t_map2cluster)
+            # print('\n**** Proc. Latency [Map to Clusters]: (%.5fs)' % t_map2cluster)
             # print("###### FINISHED MAPPING ##### Mapped object:", self.mapped_obj)
-            print("###### FINISHED saved_dist ##### saved_dist:", self.saved_dist)
+            # print("###### FINISHED saved_dist ##### saved_dist:", self.saved_dist)
 
             self.find_pair_candidates()
-            print("###### FINISHED find_pair_candidates ##### flag_pair_candidates:", self.flag_pair_candidates)
+            # print("###### FINISHED find_pair_candidates ##### flag_pair_candidates:", self.flag_pair_candidates)
             self.pair_selection()
         # print("########### isi class", self.class_det)
 
@@ -72,9 +72,8 @@ class MODv2(RegionCluster):
             # print("$$$$$$ pairDATA:", pair_data["dist"], pair_data["id"])
             if len(pair_data["id"])> 0:
                 selected_idx = pair_data["dist"].index(min(pair_data["dist"]))
-                # selected_idx = pair_data["dist"].index(max(pair_data["dist"])) # using manhattan
                 selected_person_idx = pair_data["id"][selected_idx]
-                print("%%%%%%% flag_idx - Hasil IDX, PERSON_IDX  :", flag_idx, selected_idx, selected_person_idx)
+                # print("%%%%%%% flag_idx - Hasil IDX, PERSON_IDX  :", flag_idx, selected_idx, selected_person_idx)
 
                 # get MB-Box
                 # print(" !!!!!!!!!!!!!!!!!!!! self.class_det = ", self.class_det)
@@ -86,24 +85,7 @@ class MODv2(RegionCluster):
                 person_xyxy = get_det_xyxy(self.det[selected_person_idx])
                 flag_xyxy = get_det_xyxy(self.det[flag_idx])
                 mbbox_xyxy = get_mbbox(person_xyxy, flag_xyxy)
-                flag_centroid = get_centroid_xy(flag_xyxy)
-                person_centroid = get_centroid_xy(person_xyxy)
 
-                print("~~~~~~~~~ Lokasi Flag(x1) and Person(x1)", flag_centroid, person_centroid[0])
-                # flag sebelah kanan, pakai max
-                if flag_centroid[0] > person_centroid[0]:
-                    selected_idx = pair_data["dist"].index(max(pair_data["dist"]))
-                    selected_person_idx = pair_data["id"][selected_idx]
-                    print("%%% BARU %%%% flag_idx - Hasil IDX, PERSON_IDX  :", flag_idx, selected_idx, selected_person_idx)
-
-                    person_xyxy = get_det_xyxy(self.det[selected_person_idx])
-                    flag_xyxy = get_det_xyxy(self.det[flag_idx])
-                    mbbox_xyxy = get_mbbox(person_xyxy, flag_xyxy)
-
-
-                # print("##################### @@@@ person_xyxy:", person_xyxy)
-                # print("##################### @@@@ flag_xyxy:", flag_xyxy)
-                # print("##################### @@@@ mbbox_xyxy:", mbbox_xyxy)
                 self.detected_mbbox.append(mbbox_xyxy)
                 plot_one_box(mbbox_xyxy, self.mbbox_img, label="Person-W-Flag", color=self.rgb_mbbox)
                 if self.opt.output_txt:
@@ -121,31 +103,32 @@ class MODv2(RegionCluster):
         for person_idx in self.class_det["Person"]:
             # print(" *************** person_idx = ", person_idx)
             person_xyxy = get_det_xyxy(self.det[person_idx])
-            person_centroid = get_centroid_xy(person_xyxy)
+            # person_centroid = get_centroid_xy(person_xyxy)
+            person_centroid = np_xyxy2centroid(person_xyxy)
             # self.person_xyxys.append([person_idx, person_xyxy, centroid])
             self.person_xyxys[person_idx] = [person_idx, person_xyxy, person_centroid]
-            # print(">>>> self.person_xyxys[person_idx]: ", self.person_xyxys[person_idx])
-            print(">>>> centroid PersonID-%d: " % person_idx, person_centroid)
+            # print(">>>> centroid PersonID-%d: " % person_idx, person_centroid)
             self.find_cluster(person_centroid, "Person", person_idx)
 
         for flag_idx in self.class_det["Flag"]:
             # print(" *************** flag_idx = ", flag_idx)
             flag_xyxy = get_det_xyxy(self.det[flag_idx])
-            flag_centroid = get_centroid_xy(flag_xyxy)
+            # flag_centroid = get_centroid_xy(flag_xyxy)
+            flag_centroid = np_xyxy2centroid(flag_xyxy)
             # self.flag_xyxys.append([flag_idx, flag_xyxy, centroid])
             self.flag_xyxys[flag_idx] = [flag_idx, flag_xyxy, flag_centroid]
 
             self.save_distance(flag_idx, flag_centroid)
             self.flag_pair_candidates[flag_idx] = {"id": [], "dist": []}
 
-            print(">>>> centroid FlagID-%d: " % flag_idx, flag_centroid)
+            # print(">>>> centroid FlagID-%d: " % flag_idx, flag_centroid)
             self.find_cluster(flag_centroid, "Flag", flag_idx)
 
     def save_distance(self, flag_idx, centroid):
         i = 0
         for person_idx, person_data in self.person_xyxys.items():
             # print("......... self.person_xyxys[2] = ", self.person_xyxys[2])
-            print("@@@ DATA: centroid_flag", centroid, person_idx, person_data)
+            # print("@@@ DATA: centroid_flag", centroid, person_idx, person_data)
             distance = get_xyxy_distance(centroid, person_data[2])
             # distance = get_xyxy_distance_manhattan(centroid, person_data[2])
             dist_idx = str(flag_idx) + "-" + str(person_idx)

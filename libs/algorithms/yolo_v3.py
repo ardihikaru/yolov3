@@ -554,15 +554,20 @@ class YOLOv3:
             ts_copy_img = time.time()
             original_img = im0.copy()
             t_copy_img = time.time() - ts_copy_img
-            print('\n**** Proc. Latency [Copy IMG] of frame-%s: (%.5fs)' % (str(this_frame_id), t_copy_img))
+            # print('\n**** Proc. Latency [Copy IMG] of frame-%s: (%.5fs)' % (str(this_frame_id), t_copy_img))
 
-            # ts_mod_v1 = time.time()
-            # self.mbbox = MODv1(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
-            # self.mbbox.run()
+            ts_mod_v1 = time.time()
+            self.mbbox = MODv1(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
+            self.mbbox.run()
             # self.detected_mbbox = self.mbbox.get_detected_mbbox()
             # self.mbbox_img = self.mbbox.get_mbbox_img()
-            # t_mod_v1 = time.time() - ts_mod_v1
-            # print('\n**** Proc. Latency [MODv1] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v1))
+            t_mod_v1 = time.time() - ts_mod_v1
+            # print('\n~Proc. Latency [MODv1] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v1))
+
+            # Latency: save Proc. Latency MODv1
+            t_modv1_key = "modv1-" + str(self.opt.drone_id) + "-" + str(this_frame_id)
+            print('\nLatency [MODv1] of frame-%d: (%.5fs)' % (this_frame_id, t_mod_v1))
+            redis_set(self.rc_latency, t_modv1_key, t_mod_v1)
 
             ts_mod_v2 = time.time()
             self.mbbox = MODv2(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names)
@@ -572,7 +577,12 @@ class YOLOv3:
             # print(" #### List of self.detected_mbbox:", self.detected_mbbox)
             # print(" #### self.mbbox_img:", self.mbbox_img)
             t_mod_v2 = time.time() - ts_mod_v2
-            print('\n**** Proc. Latency [MODv2] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v2))
+            # print('~Proc. Latency [MODv2] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v2))
+
+            # Latency: save Proc. Latency MODv2
+            t_modv2_key = "modv2-" + str(self.opt.drone_id) + "-" + str(this_frame_id)
+            print('\nLatency [MODv2] of frame-%d: (%.5fs)' % (this_frame_id, t_mod_v2))
+            redis_set(self.rc_latency, t_modv2_key, t_mod_v2)
 
     def get_mbbox_img(self):
         return self.mbbox_img

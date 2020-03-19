@@ -9,13 +9,6 @@ def find_point(xyxy, xy):
     else:
         return False
 
-def get_centroid_xy(xyxy):
-    width = abs(xyxy[0] - xyxy[2])
-    height = abs(xyxy[1] - xyxy[3])
-    cx = xyxy[0] + (width/2)
-    cy = xyxy[3] + (height/2)
-    return [cx, cy]
-
 # # find point
 # xyxy = [1280, 1080, 1920, 540]
 # xy = [1337.0, 786.0]
@@ -39,22 +32,22 @@ import numpy
 #
 # print(mapped_obj)
 
-from math import radians, cos, sin, asin, sqrt
-
-def haversine(lat1, lon1, lat2, lon2):
-
-      R = 3959.87433 # this is in miles.  For Earth radius in kilometers use 6372.8 km
-
-      dLat = radians(lat2 - lat1)
-      dLon = radians(lon2 - lon1)
-      lat1 = radians(lat1)
-      lat2 = radians(lat2)
-
-      a = sin(dLat/2)**2 + cos(lat1)*cos(lat2)*sin(dLon/2)**2
-      c = 2*asin(sqrt(a))
-
-      # return R * c
-      return c
+# from math import radians, cos, sin, asin, sqrt
+#
+# def haversine(lat1, lon1, lat2, lon2):
+#
+#       R = 3959.87433 # this is in miles.  For Earth radius in kilometers use 6372.8 km
+#
+#       dLat = radians(lat2 - lat1)
+#       dLon = radians(lon2 - lon1)
+#       lat1 = radians(lat1)
+#       lat2 = radians(lat2)
+#
+#       a = sin(dLat/2)**2 + cos(lat1)*cos(lat2)*sin(dLon/2)**2
+#       c = 2*asin(sqrt(a))
+#
+#       # return R * c
+#       return c
 
 # Usage
 # lon1 = -103.548851
@@ -97,17 +90,19 @@ def haversine(lat1, lon1, lat2, lon2):
 
 # Point to circle: https://www.geeksforgeeks.org/shortest-distance-between-a-point-and-a-circle/
 
-# Frame-6 -- expected Person-1 - OK
-flag_c = [1337.0, 786.0]
-person_0c = [952.5, 755.5]
-person_1c = [1164.5, 1053.5]
+# # Frame-6 -- expected Person-1 - OK
+# flag_c = [1337.0, 786.0]
+# person_0c = [952.5, 755.5]
+# person_1c = [1164.5, 1053.5]
+#
+# # # Frame-9 -- expected Person-0
+# # flag_c = [1138.0, 665.0]
+# # person_0c = [1128.5, 1077.5]
+# # person_1c = [985.5, 702.0]
+#
+# from scipy.spatial import distance
+#
+# print("Flag-2 ke Person-0: ", distance.cityblock(flag_c, person_0c))
+# print("Flag-2 ke Person-1: ", distance.cityblock(flag_c, person_1c))
 
-# # Frame-9 -- expected Person-0
-# flag_c = [1138.0, 665.0]
-# person_0c = [1128.5, 1077.5]
-# person_1c = [985.5, 702.0]
-
-from scipy.spatial import distance
-
-print("Flag-2 ke Person-0: ", distance.cityblock(flag_c, person_0c))
-print("Flag-2 ke Person-1: ", distance.cityblock(flag_c, person_1c))
+# https://github.com/thinkphp/manhattan-distance/blob/master/manhattan-distance.py
