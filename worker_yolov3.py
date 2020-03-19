@@ -47,6 +47,8 @@ if __name__ == '__main__':
     # parser.add_argument('--source', type=str, default='data/5g-dive/sample-4-frames/out8.png',
     #                     help='source')  # input file/folder, 0 for webcam
 
+    parser.add_argument('--img_width', type=int, default=1920, help='Image Width')
+    parser.add_argument('--img_height', type=int, default=1080, help='Image Height')
 
     parser.add_argument('--output', type=str, default='/media/ramdisk/output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')

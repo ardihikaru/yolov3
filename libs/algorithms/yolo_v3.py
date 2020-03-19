@@ -5,7 +5,8 @@ from utils.datasets import *
 from utils.utils import *
 from libs.commons.opencv_helpers import *
 
-from libs.algorithms.mbbox import Mbbox
+from libs.algorithms.mod_v1 import MODv1
+from libs.algorithms.mod_v2 import MODv2
 from redis import StrictRedis
 import json
 from libs.settings import common_settings
@@ -455,7 +456,7 @@ class YOLOv3:
 
                     ts_mbbox = time.time()
                     if self.mbbox_algorithm:
-                        self.__mbbox_detection(det, im0) # modifying Mb-box
+                        self.__mbbox_detection(det, im0, this_frame_id) # modifying Mb-box
                     t_mbbox = time.time() - ts_mbbox
                     self.time_mbbox += t_mbbox
                     self.time_mbbox_list.append(t_mbbox)
@@ -539,7 +540,7 @@ class YOLOv3:
                 # print(">>>>>>>>>>>>> PLOT BBOX aja self.save_img = ", self.save_img)
                 if self.save_img or self.view_img:  # Add bbox to image
                     label = '%s %.2f' % (self.names[int(cls)], conf)
-                    plot_one_box(xyxy, im0, label=label, color=self.colors[int(cls)])
+                    plot_one_box(xyxy, im0, label=label+"-IDX="+str(idx_detected-1), color=self.colors[int(cls)])
 
     '''
     FYI:
@@ -548,23 +549,30 @@ class YOLOv3:
         2. conf  : Confidence Score
         3. cls   : Class (`Person` and `Flag`)
     '''
-    def __mbbox_detection(self, det, im0):
+    def __mbbox_detection(self, det, im0, this_frame_id):
         if self.mbbox_algorithm:
+            ts_copy_img = time.time()
             original_img = im0.copy()
+            t_copy_img = time.time() - ts_copy_img
+            print('\n**** Proc. Latency [Copy IMG] of frame-%s: (%.5fs)' % (str(this_frame_id), t_copy_img))
 
-            self.mbbox = Mbbox(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
+            # ts_mod_v1 = time.time()
+            # self.mbbox = MODv1(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names, self.w_ratio, self.h_ratio)
+            # self.mbbox.run()
+            # self.detected_mbbox = self.mbbox.get_detected_mbbox()
+            # self.mbbox_img = self.mbbox.get_mbbox_img()
+            # t_mod_v1 = time.time() - ts_mod_v1
+            # print('\n**** Proc. Latency [MODv1] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v1))
+
+            ts_mod_v2 = time.time()
+            self.mbbox = MODv2(self.webcam, im0, self.opt, self.save_path, det, original_img, self.names)
             self.mbbox.run()
-            # im0 = self.mbbox.get_mbbox_img() # overriding img value here.
-            self.detected_mbbox = self.mbbox.get_detected_mbbox()
-            # rgb_mbbox = self.mbbox.get_rgb_mbbox()
-            self.mbbox_img = self.mbbox.get_mbbox_img()
-            # if len(detected_mbbox) > 0:
-            #     print("\n ***************** DETECTED MB-Box = ", len(detected_mbbox))
-            # else:
-            #     print("\n ***************** ZOONNNGGGG ")
-            #     print("\n ### TYPE detected_mbbox = ", type(detected_mbbox[0]))
-            #
-            # print("\n ### TYPE det = ", type(det))
+            self.detected_mbbox = self.mbbox.get_detected_mbbox() #xyxy(s)
+            self.mbbox_img = self.mbbox.get_mbbox_img() #image
+            # print(" #### List of self.detected_mbbox:", self.detected_mbbox)
+            # print(" #### self.mbbox_img:", self.mbbox_img)
+            t_mod_v2 = time.time() - ts_mod_v2
+            print('\n**** Proc. Latency [MODv2] of frame-%s: (%.5fs)' % (str(this_frame_id), t_mod_v2))
 
     def get_mbbox_img(self):
         return self.mbbox_img

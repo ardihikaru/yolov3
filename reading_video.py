@@ -43,6 +43,7 @@ if __name__ == "__main__":
                         help='Folder location to store original_frames')
 
     # parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
+    # parser.add_argument("--source", type=str, default="data/5g-dive/sample-1-frame", help="source")
     parser.add_argument("--source", type=str, default="data/5g-dive/customTest_MIRC-Roadside-5s.mp4", help="source")
     # parser.add_argument("--source", type=str, default="http://140.113.86.92:10000/drone-3.flv", help="source")
     # parser.add_argument("--source", type=str, default="http://140.113.86.92:10000/drone-2.flv", help="source")

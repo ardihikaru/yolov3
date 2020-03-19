@@ -1,8 +1,9 @@
 import numpy as np
 from libs.algorithms.intersection_finder import IntersectionFinder
 from libs.commons.opencv_helpers import save_txt
+import time
 
-class Mbbox:
+class MODv1:
     def __init__(self, cam, source_img, opt, save_path, det, img, names, w_ratio, h_ratio):
         self.cam = cam
         self.source_img = source_img
@@ -20,7 +21,11 @@ class Mbbox:
         self.rgb_mbbox = [198, 50, 13]
 
     def run(self):
+        # ts_extract = time.time()
         self.__extract()
+        # t_extract = time.time() - ts_extract
+        # print('\n**** Proc. Latency [extract img DATA]: (%.5fs)' % (t_extract))
+
         # Bug fixing: When unable to find both Person and Flag object, ignore
         if len(self.class_det) == 2:
             self.intersection = IntersectionFinder(self.opt, self.names, self.save_path, self.img, self.det,

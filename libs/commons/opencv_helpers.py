@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from math import sqrt
+from scipy.spatial import distance
 
 def crop_image(save_path, img, xywh, idx):
     x = xywh[0]
@@ -72,11 +73,16 @@ def np_xyxy2centroid(xyxy):
     return np.asarray([centroid_x, centroid_y])
 
 def get_xyxy_distance(xyxy_1, xyxy_2):
-    pass
     o1cx_o2cx = pow((xyxy_1[0] - xyxy_2[0]), 2)
     o1cy_o2cy = pow((xyxy_1[1] - xyxy_2[1]), 2)
-    distance = sqrt(o1cx_o2cx + o1cy_o2cy)
-    return distance
+    dist = sqrt(o1cx_o2cx + o1cy_o2cy)
+    return dist
+
+def get_xyxy_distance_manhattan(xyxy_1, xyxy_2):
+    o1cx_o2cx = pow((xyxy_1[0] - xyxy_2[0]), 2)
+    o1cy_o2cy = pow((xyxy_1[1] - xyxy_2[1]), 2)
+    dist = sqrt(distance.cityblock(o1cx_o2cx, o1cy_o2cy))
+    return dist
 
 
 def save_txt(save_path, txt_format, mbbox_xyxy=None):
