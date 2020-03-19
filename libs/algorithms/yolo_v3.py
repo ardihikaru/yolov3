@@ -584,11 +584,15 @@ class YOLOv3:
                 self.detected_mbbox = self.mbbox.get_detected_mbbox()  # xyxy(s)
                 self.mbbox_img = self.mbbox.get_mbbox_img()  # image
 
-                for i in range(len(self.detected_mbbox)):
-                    mbbox_xyxy = self.detected_mbbox[i]
+                if len(self.detected_mbbox) == 0:
                     if self.opt.output_txt:
-                        save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
-                        # save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy, 'w+')
+                        save_txt(self.save_path, self.opt.txt_format)
+                else:
+                    for i in range(len(self.detected_mbbox)):
+                        mbbox_xyxy = self.detected_mbbox[i]
+                        if self.opt.output_txt:
+                            save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy)
+                            # save_txt(self.save_path, self.opt.txt_format, mbbox_xyxy, 'w+')
 
                 # print(" #### List of self.detected_mbbox:", self.detected_mbbox)
                 # print(" #### self.mbbox_img:", self.mbbox_img)
