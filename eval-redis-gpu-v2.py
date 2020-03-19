@@ -181,7 +181,7 @@ class Plot:
 
         self.save_to_csv('08_yolo_nms_latency-w=%d.csv' % self.opt.num_workers, self.yolo_nms)  # X is an array
 
-    # @`worker_yolov3.py`
+    # @`worker_yolov3.py: Not used anymore`
     def get_yolo_mbbox_latency(self):
         self.yolo_mbbox = []
         # for idx in range (1, self.num_frames):
@@ -234,6 +234,34 @@ class Plot:
 
         self.save_to_csv('12_end2end_latency-w=%d.csv' % self.opt.num_workers, [self.end2end])  # X is an array
 
+    # @`worker_yolov3.py: Not used anymore`
+    def get_yolo_modv1_latency(self):
+        self.yolo_modv1 = []
+        # for idx in range (1, self.num_frames):
+        for idx in range (1, (self.num_frames+1)):
+            key = "modv1-" + str(self.opt.drone_id) + "-" + str(idx)
+            value = redis_get(self.rc_latency, key)
+            if self.to_ms:
+                value = value * 1000
+            # print("# Key[`%s`], value = " % key, value)
+            self.yolo_modv1.append(value)
+
+        self.save_to_csv('13_yolo_modv1_latency-w=%d.csv' % self.opt.num_workers, self.yolo_modv1)  # X is an array
+
+    # @`worker_yolov3.py: Not used anymore`
+    def get_yolo_modv2_latency(self):
+        self.yolo_modv2 = []
+        # for idx in range (1, self.num_frames):
+        for idx in range (1, (self.num_frames+1)):
+            key = "modv2-" + str(self.opt.drone_id) + "-" + str(idx)
+            value = redis_get(self.rc_latency, key)
+            if self.to_ms:
+                value = value * 1000
+            # print("# Key[`%s`], value = " % key, value)
+            self.yolo_modv2.append(value)
+
+        self.save_to_csv('13_yolo_modv2_latency-w=%d.csv' % self.opt.num_workers, self.yolo_modv2)  # X is an array
+
     def load_data(self):
         # @`reading_video.py`
         self.get_stream_setup_latency()
@@ -252,6 +280,9 @@ class Plot:
         self.get_end2end_frame_latency()
         self.get_end2end_latency()
 
+        self.get_yolo_modv1_latency()
+        self.get_yolo_modv2_latency()
+
     def run(self):
         self.load_data()
 
@@ -262,6 +293,8 @@ class Plot:
 
         self.frame_communication_latency_graph()
         self.frame_processing_latency_graph()
+
+        # not used yet
         # self.end2end_latency_graph()
         # self.end2end_comparison_graph()
 
