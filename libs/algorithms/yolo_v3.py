@@ -323,12 +323,12 @@ class YOLOv3:
         self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(self.names))]
 
     # Executed after detect()
-    def __print_save_txt_img(self):
-        if self.save_txt or self.save_img:
-        # if self.save_txt:
-            print('Results saved to %s' % os.getcwd() + os.sep + self.out)
-            if platform == 'darwin':  # MacOS
-                os.system('open ' + self.out + ' ' + self.save_path)
+    # def __print_save_txt_img(self):
+    #     if self.save_txt or self.save_img:
+    #     # if self.save_txt:
+    #         print('Results saved to %s' % os.getcwd() + os.sep + self.out)
+    #         if platform == 'darwin':  # MacOS
+    #             os.system('open ' + self.out + ' ' + self.save_path)
 
     def __save_cropped_img(self, xyxy, im0, idx):
         if self.opt.crop_img:
