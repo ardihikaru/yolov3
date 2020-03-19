@@ -50,6 +50,9 @@ class MODv2(RegionCluster):
             self.find_pair_candidates()
             # print("###### FINISHED find_pair_candidates ##### flag_pair_candidates:", self.flag_pair_candidates)
             self.pair_selection()
+        else:
+            if self.opt.output_txt:
+                save_txt(self.save_path, self.opt.txt_format, "")
         # print("########### isi class", self.class_det)
 
     def find_pair_candidates(self):
