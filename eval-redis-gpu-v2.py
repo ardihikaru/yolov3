@@ -260,7 +260,7 @@ class Plot:
             # print("# Key[`%s`], value = " % key, value)
             self.yolo_modv2.append(value)
 
-        self.save_to_csv('13_yolo_modv2_latency-w=%d.csv' % self.opt.num_workers, self.yolo_modv2)  # X is an array
+        self.save_to_csv('14_yolo_modv2_latency-w=%d.csv' % self.opt.num_workers, self.yolo_modv2)  # X is an array
 
     def load_data(self):
         # @`reading_video.py`
