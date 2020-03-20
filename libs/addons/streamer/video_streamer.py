@@ -164,9 +164,10 @@ class VideoStreamer:
                         # Start capturing here
                         if received_frame_id >= self.start_frame_id:
                             frame_id += 1
+
                             # Force stop after n frames
                             # if frame_id > int(self.max_frames):
-                            if frame_id == (int(self.max_frames) + 1):
+                            if frame_id == (self.max_frames + 1) and self.max_frames > 0:
                                 self.is_running = False
                                 break
 
@@ -300,15 +301,16 @@ class VideoStreamer:
                         # Start capturing here
                         if received_frame_id >= self.start_frame_id:
                             frame_id += 1
-                            # Force stop after n frames
+
+                            # Force stop after n frames; disabled when self.max_frames == 0
                             # if frame_id > int(self.max_frames):
-                            if frame_id == (int(self.max_frames) + 1):
+                            if frame_id == (self.max_frames + 1) and self.max_frames > 0:
                                 self.is_running = False
                                 break
 
                             save_path = self.opt.output_folder + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
                             mbbox_path = self.opt.mbbox_output + str(self.opt.drone_id) + "/frame-%d.jpg" % frame_id
-                            bbox_path = self.opt.normal_output + "/frame-%d.jpg" % frame_id
+                            bbox_path = self.opt.normal_output + "frame-%d.jpg" % frame_id
 
                             self.__load_balancing(frame_id, ret, frame, save_path)
 

@@ -30,8 +30,8 @@ if __name__ == '__main__':
     parser.add_argument('--modv2', type=bool, default=False,
                         help='Enabling/Disabling MOD Algorithm v2')
 
-    parser.add_argument('--default_detection', type=str, default=False, help='Enabling/Disabling Default Box Bounding Algorithm')
-    # parser.add_argument('--default_detection', type=bool, default=True, help='Enabling/Disabling Default Box Bounding Algorithm')
+    # parser.add_argument('--default_detection', type=str, default=False, help='Enabling/Disabling Default Box Bounding Algorithm')
+    parser.add_argument('--default_detection', type=bool, default=True, help='Enabling/Disabling Default Box Bounding Algorithm')
     parser.add_argument('--mbbox_detection', type=bool, default=True, help='Enabling/Disabling Merge Box Bounding Algorithm')
     parser.add_argument('--save_enlarged_img', type=bool, default=False, help='Enabling/Disabling Save enlarged img')
     # parser.add_argument('--mbbox_detection', type=str, default=False, help='Enabling/Disabling Merge Box Bounding Algorithm')
