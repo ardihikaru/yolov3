@@ -50,12 +50,15 @@ class Plot:
             # print("LEN worker2:", len(worker2))
             # print("LEN worker3:", len(worker3))
 
+            # print(worker1)
+
             mean_worker1 = round(np.mean(np.array(worker1)), 2)
             mean_worker2 = round(np.mean(np.array(worker2)), 2)
             mean_worker3 = round(np.mean(np.array(worker3)), 2)
 
             fig = plt.figure()
-            title = "Comparison of Pattern Recognition Latency"
+            # title = "Comparison of Pattern Recognition Latency"
+            title = "Pattern Recognition Latency of TM-06 + %s" % self.opt.mod_version
             plt.title(title)
             plt.plot(ks, worker1, label='1 Worker')
             plt.plot(ks, worker2, label='3 Workers')
@@ -73,12 +76,14 @@ class Plot:
             # plt.xticks(ks, x_info)
 
             plt.show()
-            # print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')
-            fig.savefig(self.latency_output + 'PR_latency_comparison.png', dpi=fig.dpi)
+            print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')
+            fig.savefig(self.latency_output + 'PR_latency_comparison_%s.png' % self.opt.mod_version, dpi=fig.dpi)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sum_total', type=int, default=6, help='Number of workers')
+    # parser.add_argument('--mod_version', type=str, default="MODv1", help="Version of MOD used in this plot")
+    parser.add_argument('--mod_version', type=str, default="MODv2", help="Version of MOD used in this plot")
+    parser.add_argument('--sum_total', type=int, default=6, help='Total Summary Number of workers')
     parser.add_argument('--num_workers', type=int, default=1, help='Number of workers')
     parser.add_argument('--timestamp', type=float, default=1580798146.107, help='AVG frame of the Drone (s)') # $ date +%s%3N
     parser.add_argument('--avg_frame', type=float, default=2.2, help='Average frame latency from the Drone (ms)')
@@ -87,7 +92,9 @@ if __name__ == '__main__':
     parser.add_argument('--to_ms', type=bool, default=True, help='Convert value (from seconds) into miliseconds')
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
     # parser.add_argument("--output_graph", type=str, default="output_graph/", help="path to save the graphs")
-    parser.add_argument("--output_graph", type=str, default="/media/ramdisk/output_graph/", help="path to save the graphs")
+    # parser.add_argument("--output_graph", type=str, default="/media/ramdisk/output_graph/", help="path to save the graphs")
+    # parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v1/", help="path to save the graphs")
+    parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v2/", help="path to save the graphs")
     opt = parser.parse_args()
     print(opt)
 

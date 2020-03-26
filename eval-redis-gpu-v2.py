@@ -377,7 +377,7 @@ class Plot:
         plt.legend()
         plt.show()
         # print("##### Saving graph into: ", self.latency_output + 'communication_latency_per_frame.png')
-        fig.savefig(self.latency_output + 'communication_latency_per_frame.png', dpi=fig.dpi)
+        fig.savefig(self.latency_output + 'communication_latency_per_frame-w=%d.png' % self.opt.num_workers, dpi=fig.dpi)
 
     def frame_processing_latency_graph(self):
         # Define number of iteration (K)
@@ -398,7 +398,7 @@ class Plot:
         plt.legend()
         plt.show()
         # print("##### Saving graph into: ", self.latency_output + 'processing_latency_per_frame.png')
-        fig.savefig(self.latency_output + 'processing_latency_per_frame.png', dpi=fig.dpi)
+        fig.savefig(self.latency_output + 'processing_latency_per_frame-w=%d.png' % self.opt.num_workers, dpi=fig.dpi)
 
     def end2end_comparison_graph(self):
 

@@ -41,11 +41,22 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
         - `opencv-python`
         - `Pillow`
     - **WARNING**: If you get Module not found for `Cython`, please do:
-        `$ pip install Cython`
+        `$ pip install Cython numpy scipy`
+        
 ### Clone and install requirements (If Not using Conda Env)
-    $ git clone git@github.com:ardihikaru/yolov3.git
-    $ cd yolov3
-    $ pip install -r requirements.txt
+- Clone git: 
+`$ git clone git@github.com:ardihikaru/yolov3.git`
+- Go to project directory: 
+`$ cd yolov3`
+- Create new virtual env (created once):
+`$ python3 -m venv venv` 
+- Enable virtual env:
+`$ . venv/bin/activate.fish`
+- Install additional library:
+`$ pip install Cython numpy scipy`
+- Install requirement file:
+`$ pip install -r requirements.txt`
+
 ### Usage
 1. Activate environment (for Conda Env): `$ conda activate 5gdive-yolov3`
 2. Create RAM-based Disk storage:
