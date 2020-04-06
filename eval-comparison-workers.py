@@ -1,13 +1,21 @@
 from utils.utils import *
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import csv
 import matplotlib.patches as mpatches
 from libs.addons.redis.my_redis import MyRedis
 from libs.addons.redis.translator import redis_get, redis_set
 import argparse
 
+# def int_to_tuple(Ks):
+#     lst = []
+#     for i in range(Ks):
+#         lst.append((i+1))
+#     return tuple(lst)
+
 class Plot:
     def __init__(self, opt):
         self.opt = opt
-        self.to_ms = opt.to_ms
         self.latency_output = opt.output_graph
         redis = MyRedis()
         self.rc = redis.get_rc()
@@ -58,7 +66,8 @@ class Plot:
 
             fig = plt.figure()
             # title = "Comparison of Pattern Recognition Latency"
-            title = "Pattern Recognition Latency of TM-06 + %s" % self.opt.mod_version
+            title = "Pattern Recognition Latency of TM-04 + %s" % self.opt.mod_version
+            # title = "Pattern Recognition Latency of TM-06 + %s" % self.opt.mod_version
             plt.title(title)
             plt.plot(ks, worker1, label='1 Worker')
             plt.plot(ks, worker2, label='3 Workers')
@@ -78,24 +87,17 @@ class Plot:
             plt.show()
             print("##### Saving graph into: ", self.latency_output + 'end2end_latency_per_frame.png')
             fig.savefig(self.latency_output + 'PR_latency_comparison_%s.png' % self.opt.mod_version, dpi=fig.dpi)
+            print("saved file into:", self.latency_output + 'PR_latency_comparison_%s.png')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--mod_version', type=str, default="MODv1", help="Version of MOD used in this plot")
-    parser.add_argument('--mod_version', type=str, default="MODv2", help="Version of MOD used in this plot")
-    parser.add_argument('--sum_total', type=int, default=6, help='Total Summary Number of workers')
-    parser.add_argument('--num_workers', type=int, default=1, help='Number of workers')
-    parser.add_argument('--timestamp', type=float, default=1580798146.107, help='AVG frame of the Drone (s)') # $ date +%s%3N
-    parser.add_argument('--avg_frame', type=float, default=2.2, help='Average frame latency from the Drone (ms)')
-    # parser.add_argument('--enable_e2e', type=bool, default=True, help='Enable End-to-end calculation') # `value` += `avg_frame`
-    parser.add_argument('--enable_e2e', type=bool, default=False, help='Enable End-to-end calculation') # `value` += `avg_frame`
-    parser.add_argument('--to_ms', type=bool, default=True, help='Convert value (from seconds) into miliseconds')
-    parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
-    # parser.add_argument("--output_graph", type=str, default="output_graph/", help="path to save the graphs")
-    # parser.add_argument("--output_graph", type=str, default="/media/ramdisk/output_graph/", help="path to save the graphs")
-    # parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v1/", help="path to save the graphs")
-    parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v2/", help="path to save the graphs")
+    # parser.add_argument('--mod_version', type=str, default="MODv2", help="Version of MOD used in this plot")
+    parser.add_argument('--mod_version', type=str, default="MOD", help="Version of MOD used in this plot")
+    # parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v2/", help="path to save the graphs")
+    parser.add_argument("--output_graph", type=str, default="output_graph/modv2/v2_tm04/", help="path to save the graphs")
     opt = parser.parse_args()
     print(opt)
 
     Plot(opt).run()
+
