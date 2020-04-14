@@ -10,12 +10,12 @@ from libs.algorithms.yolo_v3 import YOLOv3
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--drone_id', type=int, default=1, help='Drone ID')
-    parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/",
+    parser.add_argument('--mbbox_output', type=str, default="hasil/media/ramdisk/mbbox_frames/",
                         help='Folder location to store mbbox_frames')
     parser.add_argument('--sub_channel', type=str, default="1", help='Redis Subscriber channel')
-    parser.add_argument('--frames_dir', type=str, default="/media/ramdisk/output_frames", help='Frame by frame output')
+    parser.add_argument('--frames_dir', type=str, default="hasil/media/ramdisk/output_frames", help='Frame by frame output')
     parser.add_argument('--plot_latency', type=bool, default=True, help='Save latency result into Graph')
-    parser.add_argument('--latency_output', type=str, default="/media/ramdisk/saved_latency/tmp", help='Output location for latency results')
+    parser.add_argument('--latency_output', type=str, default="hasil/media/ramdisk/saved_latency/tmp", help='Output location for latency results')
 
     # parser.add_argument('--maximize_latency', type=bool, default=True, help='Enable max latency (disabling some features)')
     parser.add_argument('--maximize_latency', type=bool, default=False, help='Enable max latency (disabling some features)')
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--img_width', type=int, default=1920, help='Image Width')
     parser.add_argument('--img_height', type=int, default=1080, help='Image Height')
 
-    parser.add_argument('--output', type=str, default='/media/ramdisk/output', help='output folder')  # output folder
+    parser.add_argument('--output', type=str, default='hasil/media/ramdisk/output', help='output folder')  # output folder
     # parser.add_argument('--img-size', type=int, default=416, help='inference size (pixels)')
     parser.add_argument('--img-size', type=int, default=832, help='inference size (pixels)')
     # parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')

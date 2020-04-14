@@ -34,12 +34,12 @@ if __name__ == "__main__":
     # parser.add_argument("--delay", type=int, default=1, help="path to dataset")
     # parser.add_argument("--delay", type=int, default=2, help="path to dataset")
 
-    parser.add_argument("--output_folder", type=str, default="/media/ramdisk/output_frames/", help="path to save raw images")
+    parser.add_argument("--output_folder", type=str, default="hasil/media/ramdisk/output_frames/", help="path to save raw images")
 
     # To show the result in GUI (Copied from worker_yolov3.py configuration)
-    parser.add_argument('--mbbox_output', type=str, default="/media/ramdisk/mbbox_frames/",
+    parser.add_argument('--mbbox_output', type=str, default="hasil/media/ramdisk/mbbox_frames/",
                         help='Folder location to store mbbox_frames')
-    parser.add_argument('--normal_output', type=str, default="/media/ramdisk/output/",
+    parser.add_argument('--normal_output', type=str, default="hasil/media/ramdisk/output/",
                         help='Folder location to store original_frames')
 
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')

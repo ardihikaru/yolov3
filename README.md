@@ -60,19 +60,21 @@ The https://github.com/ultralytics/yolov3 repo contains inference and training c
 ### Usage
 1. Activate environment (for Conda Env): `$ conda activate 5gdive-yolov3`
 2. Create RAM-based Disk storage:
-```
+    ```
     $ sudo mkdir -p /media/ramdisk 
     $ sudo chmod -R 777 /media/ramdisk/
     $ sudo mount -t tmpfs -o size=1G tmpfs /media/ramdisk/
     Testing:
     $ dd if=/dev/zero of=/media/ramdisk/zero bs=4k count=10000  
-```
+    ```
 3. Run YOLOv3 Workers, as the for example here, I setup **3 workers** by default (file `worker_yolov3.py`)
-- `$ python worker_yolov3.py --sub_channel 1`
-- `$ python worker_yolov3.py --sub_channel 2`
-- `$ python worker_yolov3.py --sub_channel 3`
-4. Run video streaming reader: `$ python reading_video.py`
-- By default, I set `3 number of workers`. Please modify them accordingly.
+    - `$ python worker_yolov3.py --sub_channel 1`
+    - `$ python worker_yolov3.py --sub_channel 2`
+    - `$ python worker_yolov3.py --sub_channel 3`
+4. Resize input and output image (**optional**):
+    - 
+5. Run video streaming reader: `$ python reading_video.py`
+    - By default, I set `3 number of workers`. Please modify them accordingly.
 
 ##### All dependencies are included in the associated docker images. Docker requirements are: 
 - `nvidia-docker`

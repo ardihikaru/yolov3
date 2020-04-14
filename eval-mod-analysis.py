@@ -7,10 +7,11 @@ import argparse
 class PlotE2E:
     def __init__(self, opt):
         self.opt = opt
-        self.latency_output = opt.output_graph + "mod-analysis/2020-03-19/"
+        # self.latency_output = opt.output_graph + "mod-analysis/2020-03-19/"
+        self.latency_output = opt.output_graph + "modv2/v2_tm04_2/"
 
     def run(self):
-        self.plot_all()
+        # self.plot_all()
         self.plot_modv2()
 
     def plot_modv2(self):

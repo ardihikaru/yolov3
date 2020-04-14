@@ -23,7 +23,50 @@ class Plot:
         self.rc_latency = redis.get_rc_latency()
 
     def run(self):
-        self.end2end_comparison_graph()
+        latency_w1 = self.extract_latency_data("1")
+        latency_w3 = self.extract_latency_data("3")
+        latency_w6 = self.extract_latency_data("6")
+
+        batch_w1, batch_w3, batch_w6 = self.latency2batch(latency_w1, latency_w3, latency_w6)
+        # batch_w3 = self.latency2batch(latency_w3, 3)
+        # batch_w6 = self.latency2batch(latency_w6, 6)
+
+        self.end2end_comparison_graph([batch_w1, batch_w3, batch_w6])
+
+    def latency2batch(self, latw1, latw3, latw6):
+        tmp_totalw1, tmp_totalw3, tmp_totalw6 = 0, 0, 0
+        batch_w1, batch_w3, batch_w6 = [], [], []
+        for i in range(len(latw1)):
+            frame_id = i + 1
+            tmp_totalw1 += latw1[i]
+            tmp_totalw3 += latw3[i]
+            tmp_totalw6 += latw6[i]
+
+            if frame_id % 6 == 0:
+                batch_w1.append(tmp_totalw1)
+                batch_w3.append((tmp_totalw3/2))
+                batch_w6.append((tmp_totalw6/6))
+
+                tmp_totalw1, tmp_totalw3, tmp_totalw6 = 0, 0, 0 #reset
+
+        return batch_w1, batch_w3, batch_w6
+
+    def extract_latency_data(self, worker_id):
+        # yolo_read = self.read_data('06_yolo_load_img_latency-w=%s.csv' % worker_id)
+        yolo_inference = self.read_data('07_yolo_inference_latency-w=%s.csv' % worker_id)
+        yolo_nms = self.read_data('08_yolo_nms_latency-w=%s.csv' % worker_id)
+        modv2 = self.read_data('14_yolo_modv2_latency-w=%s.csv' % worker_id)
+
+        # print("LEN: ", len(yolo_read), len(yolo_inference), len(yolo_nms), len(modv2))
+
+        this_latency = []
+        for i in range (len(yolo_inference)):
+            # total_ms = yolo_read[i] + yolo_inference[i] + yolo_nms[i] + modv2[i]
+            total_ms = yolo_inference[i] + yolo_nms[i] + modv2[i]
+            this_latency.append(total_ms)
+
+        return this_latency
+        # return [yolo_read, yolo_inference, yolo_nms, modv2]
 
     def save_to_csv(self, fname, data):
         np.savetxt(self.latency_output + fname, data, delimiter=',')  # X is an array
@@ -34,15 +77,22 @@ class Plot:
             reader = csv.reader(f)
             return [float(line[0]) for line in list(reader)]
 
-    def end2end_comparison_graph(self):
+    def end2end_comparison_graph(self, batch_latency=None):
 
+        print(">>> batch_latency:", batch_latency)
+        print(">>> LEN batch_latency:", len(batch_latency[0]))
         worker1, worker2, worker3 = None, None, None
-        try:
-            worker1 = self.read_data('sum-latency-w=1.csv')
-            worker2 = self.read_data('sum-latency-w=3.csv')
-            worker3 = self.read_data('sum-latency-w=6.csv')
-        except:
-            pass
+        if batch_latency is None:
+            try:
+                worker1 = self.read_data('sum-latency-w=1.csv')
+                worker2 = self.read_data('sum-latency-w=3.csv')
+                worker3 = self.read_data('sum-latency-w=6.csv')
+            except:
+                pass
+        else:
+            worker1 = batch_latency[0]
+            worker2 = batch_latency[1]
+            worker3 = batch_latency[2]
 
         if worker1 is not None and worker2 is not None and worker3 is not None:
             del worker1[0]
@@ -54,9 +104,9 @@ class Plot:
             K = len(worker1)
             ks = int_to_tuple(K)  # used to plot the results
 
-            # print("LEN worker1:", len(worker1))
-            # print("LEN worker2:", len(worker2))
-            # print("LEN worker3:", len(worker3))
+            print("LEN worker1:", len(worker1))
+            print("LEN worker2:", len(worker2))
+            print("LEN worker3:", len(worker3))
 
             # print(worker1)
 

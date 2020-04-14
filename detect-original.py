@@ -76,9 +76,6 @@ def detect(save_img=False):
     for path, img, im0s, vid_cap in dataset:
         t = time.time()
 
-        print("\n >>>>>>>>>>>>>>>> SHAPE = ", img.shape)
-        print("\n >>>>>>>>>>>>>>>> SHAPE = ", im0s.shape)
-
         # Get detections
         img = torch.from_numpy(img).to(device)
         if img.ndimension() == 3:
